@@ -15,6 +15,7 @@
 
          $user->login();
       } 
+      
 
       elseif (isset($_POST['Signup'])) {
          $first_name = $_POST['first_name'];
