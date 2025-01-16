@@ -1,15 +1,24 @@
 -- Active: 1733842609457@@127.0.0.1@3306@platform_de_cours_youdemy
-CREATE TABLE users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    phone VARCHAR(15) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('student', 'teacher', 'admin') NOT NULL,
-    status ENUM('active', 'inactive') DEFAULT 'inactive',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
+DROP TABLE users;
+DROP TABLE categories;
+DROP TABLE tags;
+DROP TABLE courses;
+DROP TABLE course_tags;
+DROP TABLE enrollments  ;
+
+
+    CREATE TABLE users (
+        user_id INT AUTO_INCREMENT PRIMARY KEY,
+        first_name VARCHAR(50) NOT NULL,
+        last_name VARCHAR(50) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        phone VARCHAR(15) NOT NULL,
+        image_profile TEXT,
+        password VARCHAR(255) NOT NULL,
+        role ENUM('student', 'teacher', 'admin') NOT NULL,
+        status ENUM('active', 'inactive') DEFAULT 'inactive',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
 
 
 
@@ -33,6 +42,7 @@ CREATE TABLE courses (
     category_id INT,
     teacher_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    cours_status ENUM('accepted', 'rejected', 'pending') DEFAULT 'pending',
     FOREIGN KEY (category_id) REFERENCES categories(categorie_id) ON DELETE SET NULL,
     FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
@@ -57,3 +67,6 @@ CREATE TABLE enrollments (
     FOREIGN KEY (student_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
 );
+
+
+
