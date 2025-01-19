@@ -30,7 +30,7 @@ class Categorie {
             $query->execute();
         } catch (PDOException $error) {
             die("Error deleting category: " . $error->getMessage());
-        }
+        }  
     }
 
     public function read_categories() {
