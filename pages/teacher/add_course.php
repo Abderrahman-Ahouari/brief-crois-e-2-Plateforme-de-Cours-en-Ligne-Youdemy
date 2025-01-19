@@ -1,6 +1,29 @@
 <?php
 include('../../classes/connection.php');
+include('../../classes/course.class.php');
+include('../../classes/tags.class.php');
 include('../../classes/categorie.class.php');
+
+$db_connect = new Database_connection;
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+   $connection = $db_connect->connect();
+
+
+
+   $db_connect->disconnect();
+}
+
+
+$connection = $db_connect->connect();
+
+$categorie = new Categorie($connection);
+$categories = $categorie->read_categories();
+
+$tag = new Tags($connection);
+$tags = $tag->read_tags();
+
+$db_connect->disconnect();
 
 ?>
 <!DOCTYPE html>
@@ -159,7 +182,7 @@ include('../../classes/categorie.class.php');
       }
       }
    </style>
-</head>
+</head>  
 <body>
 <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
    <span class="sr-only">Open sidebar</span>
@@ -192,47 +215,66 @@ include('../../classes/categorie.class.php');
    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
    <div class="container">
       <div class="text">
-         Contact us Form
-      </div>
-      <form action="#">
+      Add Course  
+   </div>
+      <form action="" method="post" enctype="multipart/form-data">
          <div class="form-row">
             <div class="input-data">
-               <input type="text" required>
+               <input type="text" name="title" required>
                <div class="underline"></div>
                <label for="">title</label>
             </div>
             <div class="input-data">
-               <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  <option value="US">United States</option>
-               </select>
+            <select id="countries" name="categorie" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <?php 
+            foreach ($categories as $cat){ ?>
+               <option value="<?= htmlspecialchars($cat['categorie_id']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
+            <?php } ?>
+         </select>   
             </div>
          </div>
          <div class="form-row">
          <div class="input-data">
-         <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+         <select id="countries" name="content_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                   <option value="video">video</option>
                   <option value="document">document</option>
                </select>
           </div>
 
             <div class="input-data">
-               <input type="file" required>
+               <input type="file" name="content" required>
                <div class="underline"></div>
+            </div>
+         </div>
+         <div class="form-row">
+         <div class="input-data">
+            <label for="">select your tags</label> 
+         </div>
+
+            <div class="input-data">
+               <select id="countries" multiple name="tags[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                  <?php foreach ($tags as $tag){ ?>
+                     <option value="<?= htmlspecialchars($tag['tag_id']) ?>"><?= htmlspecialchars($tag['name']) ?></option>
+                  <?php } ?>
+               </select>
+            <div class="underline"></div>
             </div>
          </div>
 
 
-
          <div class="form-row">
+
          <div class="input-data textarea">
-            <textarea rows="8" cols="80" required></textarea>
+            <textarea rows="8" name="" cols="80" name="description" required></textarea>
             <br />
-            <div class="underline"></div>
-            <label for="">Write your message</label>
+            <div class="underline" ></div>
+            <label for="">Write your description</label>
             <br />
+            
             <div class="form-row submit-btn">
-               <div class="input-data">
-                  <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Default</button>
+
+            <div class="input-data">
+                  <button type="button" name="add_cource" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">creat</button>
             </div>
       </form>
       </div>

@@ -88,6 +88,67 @@ class Course {
     public function setConn($conn) {
         $this->conn = $conn;
     }
+
+
+
+    public function add_course() {
+        try {
+            $sql = "INSERT INTO courses (title, description, content, category_id, teacher_id,)
+                    VALUES (:title, :description, :content, :category_id, :teacher_id)";
+
+            $query = $this->conn->prepare($sql);
+
+            $query->bindParam(':title', $this->title, PDO::PARAM_STR);
+            $query->bindParam(':description', $this->description, PDO::PARAM_STR);
+            $query->bindParam(':content', $this->content, PDO::PARAM_STR);
+            $query->bindParam(':category_id', $this->category_id, PDO::PARAM_INT);
+            $query->bindParam(':teacher_id', $this->teacher_id, PDO::PARAM_INT);
+
+            $query->execute();
+        } catch (PDOException) {
+            die("Error adding course: " . $error->getMessage());
+        }
+    }
+
+
+    public function modifyCourse() {
+      try {
+          $sql = "UPDATE courses 
+                  SET title = :title, description = :description, content = :content, category_id = :category_id 
+                  WHERE course_id = :course_id";
+
+          $query = $this->conn->prepare($sql);
+  
+          $query->bindParam(':title', $this->title, PDO::PARAM_STR);
+          $query->bindParam(':description', $this->description, PDO::PARAM_STR);
+          $query->bindParam(':content', $this->content, PDO::PARAM_STR);
+          $query->bindParam(':category_id', $this->category_id, PDO::PARAM_INT);
+          $query->bindParam(':course_id', $this->course_id, PDO::PARAM_INT);
+  
+          $query->execute();
+      } catch (PDOException $error) {
+          die("Error modifying course: " . $error->getMessage());
+      }
+  }
+
+
+  public function deleteCourse() {
+   try {
+       $sql = "DELETE FROM courses WHERE course_id = :course_id";
+       
+       $query = $this->conn->prepare($sql);
+
+       $query->bindParam(':course_id', $this->course_id, PDO::PARAM_INT);
+
+       $query->execute();
+   } catch (PDOException $error) {
+       die("Error deleting course: " . $error->getMessage());
+   }
 }
+
+  
+}
+
+
 
 ?>
