@@ -39,6 +39,9 @@ CREATE TABLE courses (
     title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     content TEXT NOT NULL,
+    cover TEXT, 
+    duration VARCHAR(20),
+    nbr_page INT,
     category_id INT,
     teacher_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -63,10 +66,10 @@ CREATE TABLE enrollments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     course_id INT NOT NULL,
-    enrolled_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
 );
+
 
 
 

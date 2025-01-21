@@ -5,12 +5,13 @@ class Course {
     private $title;
     private $description;
     private $content;
-    private $category_id;
+    private $cover;
+    private $category_id; 
     private $teacher_id;
     private $status;
     private $conn;
 
-    public function __construct($conn, $course_id = null, $title = null, $description = null, $content = null, $category_id = null, $teacher_id = null, $status = null) {
+    public function __construct($conn, $course_id = null, $title = null, $cover = null, $description = null, $content = null, $category_id = null, $teacher_id = null, $status = null) {
         $this->conn = $conn;
         $this->course_id = $course_id;
         $this->title = $title;
@@ -19,6 +20,7 @@ class Course {
         $this->category_id = $category_id;
         $this->teacher_id = $teacher_id;
         $this->status = $status;
+        $this->cover = $cover;
     }
 
 
@@ -55,6 +57,10 @@ class Course {
         return $this->conn;
     }
 
+    public function getcover() {
+        return $this->cover;
+    }
+
 
 
     public function setCourseId($course_id) {
@@ -89,26 +95,13 @@ class Course {
         $this->conn = $conn;
     }
 
-
-
-    public function add_course() {
-        try {
-            $sql = "INSERT INTO courses (title, description, content, category_id, teacher_id,)
-                    VALUES (:title, :description, :content, :category_id, :teacher_id)";
-
-            $query = $this->conn->prepare($sql);
-
-            $query->bindParam(':title', $this->title, PDO::PARAM_STR);
-            $query->bindParam(':description', $this->description, PDO::PARAM_STR);
-            $query->bindParam(':content', $this->content, PDO::PARAM_STR);
-            $query->bindParam(':category_id', $this->category_id, PDO::PARAM_INT);
-            $query->bindParam(':teacher_id', $this->teacher_id, PDO::PARAM_INT);
-
-            $query->execute();
-        } catch (PDOException) {
-            die("Error adding course: " . $error->getMessage());
-        }
+    public function setCover($cover) {
+        $this->cover = $cover;
     }
+
+
+
+    public function add_course() {}
 
 
     public function modifyCourse() {

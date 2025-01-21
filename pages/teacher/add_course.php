@@ -1,16 +1,45 @@
 <?php
 include('../../classes/connection.php');
-include('../../classes/course.class.php');
+include('../../classes/Course.php');
 include('../../classes/tags.class.php');
 include('../../classes/categorie.class.php');
+include('../../classes/cours_video.php');
+include('../../classes/cours_document.php');
+
 
 $db_connect = new Database_connection;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    $connection = $db_connect->connect();
 
+   $upload_folder = "../Uploads/";
+
+   $cover_name = basename($_FILES['cover_image']['name']);
+   $content_name = basename($_FILES['content_file']['name']);
+
+   $cover_path = $upload_folder . $cover_name;
+   $content_path = $upload_folder . $content_name;
+   
+   move_uploaded_file($_FILES['cover_image']['tmp_name'], $cover_path); 
+   move_uploaded_file($_FILES['content_file']['tmp_name'], $content_path); 
+
+   $title = $_POST['title'];
+   $description = $_POST['description'];
+   $categorie_id = $_POST['category'];
+   $teacher_id = $_SESSION['id'];
+   $duration = $_POST['video_duration'];
+   $nbr_pages = $_POST['document_pages'];
 
 
+   if ($_POST['content_type'] === "video") {
+      $video_course = new VideoCourse($connection, $title, $description, $cover_path, $content_path, $duration, $categorie_id, $teacher_id);
+      $video_course->add_course();
+  } elseif ($_POST['content_type'] === "document") {
+      $document_course = new DocumentCourse($connection, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
+      $document_course->add_course();
+   }
+  
+   
    $db_connect->disconnect();
 }
 
@@ -33,155 +62,126 @@ $db_connect->disconnect();
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Creat_Course</title>
    <script src="https://cdn.tailwindcss.com"></script>
-   <style>
-            @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
-      *{
-      margin: 0;
-      padding: 0;
-      outline: none;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
+<style>
+         @import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,600);
+
+      * {
+         margin:0;
+         padding:0;
+         box-sizing:border-box;
+         -webkit-box-sizing:border-box;
+         -moz-box-sizing:border-box;
+         -webkit-font-smoothing:antialiased;
+         -moz-font-smoothing:antialiased;
+         -o-font-smoothing:antialiased;
+         font-smoothing:antialiased;
+         text-rendering:optimizeLegibility;
       }
-      body{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 10px;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(115deg, #56d8e4 10%, #9f01ea 90%);
+
+      body {
+         font-family:"Open Sans", Helvetica, Arial, sans-serif;
+         font-weight:300;
+         font-size: 12px;
+         line-height:30px;
+         color:#777;
+         background:#0CF;
       }
-      .container{
-      max-width: 800px;
-      background: #fff;
-      width: 800px;
-      padding: 25px 40px 10px 40px;
-      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+
+      .container {
+         max-width:400px;
+         width:100%;
+         margin:0 auto;
+         position:relative;
       }
-      .container .text{
-      text-align: center;
-      font-size: 41px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      background: -webkit-linear-gradient(right, #56d8e4, #9f01ea, #56d8e4, #9f01ea);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+
+      #contact input[type="text"], #contact input[type="email"], #contact input[type="tel"], #contact input[type="url"], #contact textarea, #contact button[type="submit"] { font:400 12px/16px "Open Sans", Helvetica, Arial, sans-serif; }
+
+      #contact {
+         background:#F9F9F9;
+         padding:25px;
+         margin:50px 0;
       }
-      .container form{
-      padding: 30px 0 0 0;
-      }
-      .container form .form-row{
-      display: flex;
-      margin: 32px 0;
-      }
-      form .form-row .input-data{
-      width: 100%;
-      height: 40px;
-      margin: 0 20px;
-      position: relative;
-      }
-      form .form-row .textarea{
-      height: 70px;
-      }
-      .input-data input,
-      .textarea textarea{
-      display: block;
-      width: 100%;
-      height: 100%;
-      border: none;
-      font-size: 17px;
-      border-bottom: 2px solid rgba(0,0,0, 0.12);
-      }
-      .input-data input:focus ~ label, .textarea textarea:focus ~ label,
-      .input-data input:valid ~ label, .textarea textarea:valid ~ label{
-      transform: translateY(-20px);
-      font-size: 14px;
-      color: #3498db;
-      }
-      .textarea textarea{
-      resize: none;
-      padding-top: 10px;
-      }
-      .input-data label{
-      position: absolute;
-      pointer-events: none;
-      bottom: 10px;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      }
-      .textarea label{
-      width: 100%;
-      bottom: 40px;
-      background: #fff;
-      }
-      .input-data .underline{
-      position: absolute;
-      bottom: 0;
-      height: 2px;
-      width: 100%;
-      }
-      .input-data .underline:before{
-      position: absolute;
-      content: "";
-      height: 2px;
-      width: 100%;
-      background: #3498db;
-      transform: scaleX(0);
-      transform-origin: center;
-      transition: transform 0.3s ease;
-      }
-      .input-data input:focus ~ .underline:before,
-      .input-data input:valid ~ .underline:before,
-      .textarea textarea:focus ~ .underline:before,
-      .textarea textarea:valid ~ .underline:before{
-      transform: scale(1);
-      }
-      .submit-btn .input-data{
-      overflow: hidden;
-      height: 45px!important;
-      width: 25%!important;
-      }
-      .submit-btn .input-data .inner{
-      height: 100%;
-      width: 300%;
-      position: absolute;
-      left: -100%;
-      background: -webkit-linear-gradient(right, #56d8e4, #9f01ea, #56d8e4, #9f01ea);
-      transition: all 0.4s;
-      }
-      .submit-btn .input-data:hover .inner{
-      left: 0;
-      }
-      .submit-btn .input-data input{
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 17px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      cursor: pointer;
-      position: relative;
-      z-index: 2;
-      }
-      @media (max-width: 700px) {
-      .container .text{
-         font-size: 30px;
-      }
-      .container form{
-         padding: 10px 0 0 0;
-      }
-      .container form .form-row{
+
+      #contact h3 {
+         color: #F96;
          display: block;
+         font-size: 30px;
+         font-weight: 400;
       }
-      form .form-row .input-data{
-         margin: 35px 0!important;
+
+      #contact h4 {
+         margin:5px 0 15px;
+         display:block;
+         font-size:13px;
       }
-      .submit-btn .input-data{
-         width: 40%!important;
+
+      fieldset {
+         border: medium none !important;
+         margin: 0 0 10px;
+         min-width: 100%;
+         padding: 0;
+         width: 100%;
       }
+
+      #contact input[type="text"], #contact input[type="email"], #contact input[type="tel"], #contact input[type="url"], #contact textarea {
+         width:100%;
+         border:1px solid #CCC;
+         background:#FFF;
+         margin:0 0 5px;
+         padding:10px;
       }
-   </style>
+
+      #contact input[type="text"]:hover, #contact input[type="email"]:hover, #contact input[type="tel"]:hover, #contact input[type="url"]:hover, #contact textarea:hover {
+         -webkit-transition:border-color 0.3s ease-in-out;
+         -moz-transition:border-color 0.3s ease-in-out;
+         transition:border-color 0.3s ease-in-out;
+         border:1px solid #AAA;
+      }
+
+      #contact textarea {
+         height:100px;
+         max-width:100%;
+      resize:none;
+      }
+
+      #contact button[type="submit"] {
+         cursor:pointer;
+         width:100%;
+         border:none;
+         background:#0CF;
+         color:#FFF;
+         margin:0 0 5px;
+         padding:10px;
+         font-size:15px;
+      }
+
+      #contact button[type="submit"]:hover {
+         background:#09C;
+         -webkit-transition:background 0.3s ease-in-out;
+         -moz-transition:background 0.3s ease-in-out;
+         transition:background-color 0.3s ease-in-out;
+      }
+
+      #contact button[type="submit"]:active { box-shadow:inset 0 1px 3px rgba(0, 0, 0, 0.5); }
+
+      #contact input:focus, #contact textarea:focus {
+         outline:0;
+         border:1px solid #999;
+      }
+      ::-webkit-input-placeholder {
+      color:#888;
+      }
+      :-moz-placeholder {
+      color:#888;
+      }
+      ::-moz-placeholder {
+      color:#888;
+      }
+      :-ms-input-placeholder {
+      color:#888;
+      }
+
+</style>
 </head>  
 <body>
 <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
@@ -213,71 +213,74 @@ $db_connect->disconnect();
 
 <div class="p-4 sm:ml-64">
    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
-   <div class="container">
-      <div class="text">
-      Add Course  
-   </div>
-      <form action="" method="post" enctype="multipart/form-data">
-         <div class="form-row">
-            <div class="input-data">
-               <input type="text" name="title" required>
-               <div class="underline"></div>
-               <label for="">title</label>
-            </div>
-            <div class="input-data">
-            <select id="countries" name="categorie" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            <?php 
-            foreach ($categories as $cat){ ?>
-               <option value="<?= htmlspecialchars($cat['categorie_id']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
+      <div class="container">  
+      <form id="contact" action="" method="post" enctype="multipart/form-data">
+         <h3>Create a Course</h3>
+         <h4>Fill in the details below to create a new course</h4>
+         
+         <!-- Title -->
+         <fieldset>
+            <input name="title" placeholder="Course Title" type="text" tabindex="1" required autofocus>
+         </fieldset>
+
+         <!-- Description -->
+         <fieldset>
+            <textarea name="description" placeholder="Course Description" tabindex="2" required></textarea>
+         </fieldset>
+
+         <!-- Category -->
+         <fieldset class="mt-4">
+            <label for="" class="text-[#F96] text-[14px]">select categorie</label>
+            <select name="category" tabindex="3" class="ml-16" required>
+            <?php foreach ($categories as $category){ ?>
+               <option value="<?= htmlspecialchars($category['categorie_id']) ?>">
+                  <?= htmlspecialchars($category['name']) ?>
+               </option>
             <?php } ?>
-         </select>   
-            </div>
-         </div>
-         <div class="form-row">
-         <div class="input-data">
-         <select id="countries" name="content_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  <option value="video">video</option>
-                  <option value="document">document</option>
+            </select>
+         </fieldset>
+
+         <!-- Tags -->
+         <fieldset class="mt-4" >
+            <label for="" class="text-[#F96] text-[14px]">select tags</label>
+               <select name="tags[]" class="ml-16"  tabindex="4" multiple required>
+               <?php foreach ($tags as $tag){ ?>
+                  <option value="<?= htmlspecialchars($tag['tag_id']) ?>">
+                     <?= htmlspecialchars($tag['name']) ?>
+                  </option>
+               <?php } ?>
                </select>
-          </div>
+         </fieldset>
 
-            <div class="input-data">
-               <input type="file" name="content" required>
-               <div class="underline"></div>
-            </div>
-         </div>
-         <div class="form-row">
-         <div class="input-data">
-            <label for="">select your tags</label> 
-         </div>
+         <!-- Cover Image -->
+         <fieldset class="mt-6">
+            <label for="" class="text-[#F96] text-[14px] w-64 h-screen bg-black-50 dark:bg-gray-800">cover image</label>
+            <input name="cover_image" type="file" class="ml-24" tabindex="5" accept="image/*" required>
+         </fieldset>
 
-            <div class="input-data">
-               <select id="countries" multiple name="tags[]" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                  <?php foreach ($tags as $tag){ ?>
-                     <option value="<?= htmlspecialchars($tag['tag_id']) ?>"><?= htmlspecialchars($tag['name']) ?></option>
-                  <?php } ?>
-               </select>
-            <div class="underline"></div>
-            </div>
-         </div>
-
-
-         <div class="form-row">
-
-         <div class="input-data textarea">
-            <textarea rows="8" name="" cols="80" name="description" required></textarea>
-            <br />
-            <div class="underline" ></div>
-            <label for="">Write your description</label>
-            <br />
+         <!-- Content and Type -->
+         <fieldset class="mt-3">
+            <label for="content_type" class="text-[#F96] text-[14px]">Content</label>
+            <select id="content_type" name="content_type" class="ml-16" tabindex="7" required>
+               <option value="video">Video</option>
+               <option value="document">Document</option>
+            </select>
+            <input class="ml-20 mt-2" id="content_file" name="content" type="file" tabindex="6" accept=".pdf,.doc,.docx,.mp4,.avi,.mov" required>
             
-            <div class="form-row submit-btn">
+            <!-- Additional inputs -->
+            <input class="ml-20 mt-2 hidden" id="document_pages" name="document_pages" type="number" placeholder="Number of Pages" tabindex="8" min="1">
+            <input class="ml-20 mt-2 hidden" id="video_duration" name="video_duration" type="te2Z3xt" placeholder="Video Duration (e.g., 10:30)">
+         </fieldset>
 
-            <div class="input-data">
-                  <button type="button" name="add_cource" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">creat</button>
-            </div>
+
+         <!-- Submit Button -->
+         <fieldset>
+            <button name="submit" type="submit"  id="contact-submit" data-submit="...Sending">Create Course</button>
+         </fieldset>
       </form>
       </div>
+
+
    </div>
 </div>
 
@@ -318,5 +321,37 @@ $db_connect->disconnect();
 
    // Initial check for close button visibility
    updateCloseButton();
+
+
+   document.addEventListener("DOMContentLoaded", () => {
+   const contentTypeSelect = document.getElementById("content_type");
+   const documentPagesInput = document.getElementById("document_pages");
+   const videoDurationInput = document.getElementById("video_duration");
+
+   contentTypeSelect.addEventListener("change", () => {
+      const selectedValue = contentTypeSelect.value;
+
+      if (selectedValue === "document") {
+         documentPagesInput.classList.remove("hidden"); // Show document pages input
+         documentPagesInput.setAttribute("required", "required"); // Make it required
+         videoDurationInput.classList.add("hidden"); // Hide video duration input
+         videoDurationInput.removeAttribute("required"); // Remove required attribute
+      } else if (selectedValue === "video") {
+         videoDurationInput.classList.remove("hidden"); // Show video duration input
+         videoDurationInput.setAttribute("required", "required"); // Make it required
+         documentPagesInput.classList.add("hidden"); // Hide document pages input
+         documentPagesInput.removeAttribute("required"); // Remove required attribute
+      } else {
+         // Hide both inputs if no specific type is selected
+         documentPagesInput.classList.add("hidden");
+         documentPagesInput.removeAttribute("required");
+         videoDurationInput.classList.add("hidden");
+         videoDurationInput.removeAttribute("required");
+      }
+   });
+
+   // Trigger the change event initially to handle prefilled or default selections
+   contentTypeSelect.dispatchEvent(new Event("change"));
+ });
 
 </script>
