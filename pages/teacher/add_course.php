@@ -12,21 +12,21 @@ $db_connect = new Database_connection;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    $connection = $db_connect->connect();
 
-   $upload_folder = "../Uploads/";
+   $upload_folder = "../../Uploads/";
 
    $cover_name = basename($_FILES['cover_image']['name']);
-   $content_name = basename($_FILES['content_file']['name']);
+   $content_name = basename($_FILES['content']['name']);
 
    $cover_path = $upload_folder . $cover_name;
    $content_path = $upload_folder . $content_name;
-   
+
    move_uploaded_file($_FILES['cover_image']['tmp_name'], $cover_path); 
-   move_uploaded_file($_FILES['content_file']['tmp_name'], $content_path); 
+   move_uploaded_file($_FILES['content']['tmp_name'], $content_path); 
 
    $title = $_POST['title'];
    $description = $_POST['description'];
    $categorie_id = $_POST['category'];
-   $teacher_id = $_SESSION['id'];
+   $teacher_id = 2;
    $duration = $_POST['video_duration'];
    $nbr_pages = $_POST['document_pages'];
 
@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $document_course = new DocumentCourse($connection, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
       $document_course->add_course();
    }
-  
-   
+
+
    $db_connect->disconnect();
 }
 

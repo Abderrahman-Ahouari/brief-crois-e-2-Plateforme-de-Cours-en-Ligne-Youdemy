@@ -5,7 +5,7 @@ class DocumentCourse extends Course {
     private $nbr_page;
 
     public function __construct($conn, $title, $description, $cover, $content, $nbr_page, $category_id, $teacher_id) {
-        parent::__construct($conn, null, $title, $cover, $nbr_page, null, $description, $content, $category_id, $teacher_id);
+        parent::__construct($conn, null, $title, $cover, $description, $content, $category_id, $teacher_id);
         $this->nbr_page = $nbr_page;
     }
 
@@ -16,13 +16,21 @@ class DocumentCourse extends Course {
 
             $query = $this->getConn()->prepare($sql);
 
-            $query->bindParam(':title', $this->getTitle(), PDO::PARAM_STR);
-            $query->bindParam(':description', $this->getDescription(), PDO::PARAM_STR);
-            $query->bindParam(':cover', $this->getcover(), PDO::PARAM_STR);
-            $query->bindParam(':content', $this->getContent(), PDO::PARAM_STR);
-            $query->bindParam(':nbr_page', $this->nbr_page, PDO::PARAM_INT);
-            $query->bindParam(':category_id', $this->getCategoryId(), PDO::PARAM_INT);
-            $query->bindParam(':teacher_id', $this->getTeacherId(), PDO::PARAM_INT);
+            $title = $this->getTitle();
+            $description = $this->getDescription();
+            $cover = $this->getCover();
+            $content = $this->getContent();
+            $nbr_page = $this->nbr_page;
+            $category_id = $this->getCategoryId();
+            $teacher_id = $this->getTeacherId();
+    
+            $query->bindParam(':title', $title, PDO::PARAM_STR);
+            $query->bindParam(':description', $description, PDO::PARAM_STR);
+            $query->bindParam(':cover', $cover, PDO::PARAM_STR);
+            $query->bindParam(':content', $content, PDO::PARAM_STR);
+            $query->bindParam(':nbr_page', $nbr_page, PDO::PARAM_INT);
+            $query->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+            $query->bindParam(':teacher_id', $teacher_id, PDO::PARAM_INT);
 
             $query->execute();
         } catch (PDOException $error) {
