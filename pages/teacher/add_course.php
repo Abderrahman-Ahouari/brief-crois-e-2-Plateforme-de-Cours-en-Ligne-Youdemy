@@ -5,6 +5,7 @@ include('../../classes/tags.class.php');
 include('../../classes/categorie.class.php');
 include('../../classes/cours_video.php');
 include('../../classes/cours_document.php');
+include('../../classes/tags_courses.php');
 
 
 $db_connect = new Database_connection;
@@ -29,16 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    $teacher_id = 2;
    $duration = $_POST['video_duration'];
    $nbr_pages = $_POST['document_pages'];
-
+   $cours_id;  
+   $tags = $_POST['tags'];
 
    if ($_POST['content_type'] === "video") {
       $video_course = new VideoCourse($connection, $title, $description, $cover_path, $content_path, $duration, $categorie_id, $teacher_id);
-      $video_course->add_course();
+      $cours_id = $video_course->add_course();
   } elseif ($_POST['content_type'] === "document") {
       $document_course = new DocumentCourse($connection, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
-      $document_course->add_course();
+      $cours_id = $document_course->add_course();
    }
-
+   $tagged_cources = new tags_courses($cours_id, $tags, $connection);
+   $tagged_cources->insert_course_tags();
 
    $db_connect->disconnect();
 }
@@ -50,7 +53,7 @@ $categorie = new Categorie($connection);
 $categories = $categorie->read_categories();
 
 $tag = new Tags($connection);
-$tags = $tag->read_tags();
+$tags_list = $tag->read_tags();
 
 $db_connect->disconnect();
 
@@ -203,8 +206,8 @@ $db_connect->disconnect();
       <!-- Sidebar Content -->
       <ul class="space-y-2 font-medium">
          <li><a href="statistics.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="ms-3">Statistics</span></a></li>
-         <li><a href="categories.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">Create a course</span></a></li>
-         <li><a href="Tags.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">View courses</span></a></li>
+         <li><a href="add_course.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">Create a course</span></a></li>
+         <li><a href="view_courses.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">View courses</span></a></li>
       </ul>
    </div>
 </aside>
@@ -244,7 +247,7 @@ $db_connect->disconnect();
          <fieldset class="mt-4" >
             <label for="" class="text-[#F96] text-[14px]">select tags</label>
                <select name="tags[]" class="ml-16"  tabindex="4" multiple required>
-               <?php foreach ($tags as $tag){ ?>
+               <?php foreach ($tags_list as $tag){ ?>
                   <option value="<?= htmlspecialchars($tag['tag_id']) ?>">
                      <?= htmlspecialchars($tag['name']) ?>
                   </option>

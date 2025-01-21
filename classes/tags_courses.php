@@ -3,10 +3,12 @@
 class tags_courses {
     private $course_id;
     private $tags;
+    private $conn;
 
-    public function __construct($course_id, $tags = []) {
+    public function __construct($course_id, $tags = [], $conn) {
         $this->course_id = $course_id;
         $this->tags = $tags;
+        $this->conn = $conn;
     }
 
     public function getCourseId() {
@@ -24,25 +26,19 @@ class tags_courses {
     public function setTags($tags) {
         $this->tags = $tags;
     }
-}
 
-class taged_courses {
-    private $connection;
 
-    public function __construct($connection) {
-        $this->connection = $connection;
-    }
 
-    public function insertCourseTags($courseTags) {
+    public function insert_course_tags() {
         try {
             $sql = "INSERT INTO course_tags (course_id, tag_id) VALUES (:course_id, :tag_id)";
-            $query = $this->connection->prepare($sql);
+            $query = $this->conn->prepare($sql);
 
             $query->bindParam(':course_id', $course_id, PDO::PARAM_INT);
             $query->bindParam(':tag_id', $tag_id, PDO::PARAM_INT);
 
-            $course_id = $courseTags->getCourseId();
-            foreach ($courseTags->getTags() as $tag_id) {
+            $course_id = $this->course_id;
+            foreach ($this->tags as $tag_id) {
                 $query->execute();
             }
 
@@ -50,6 +46,12 @@ class taged_courses {
             die("Error inserting course tags: " . $error->getMessage());
         }
     }
+
+
+
+
+
 }
+
 
 ?>
