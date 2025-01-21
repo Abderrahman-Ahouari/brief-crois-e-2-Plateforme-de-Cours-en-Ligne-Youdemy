@@ -5,7 +5,7 @@ class Course {
     private $title;
     private $description;
     private $content;
-    private $cover;
+    private $cover; 
     private $category_id; 
     private $teacher_id;
     private $status;

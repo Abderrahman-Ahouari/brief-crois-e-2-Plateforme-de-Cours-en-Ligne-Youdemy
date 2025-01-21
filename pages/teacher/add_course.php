@@ -31,8 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    $duration = $_POST['video_duration'];
    $nbr_pages = $_POST['document_pages'];
    $cours_id;  
-   $tags = $_POST['tags'];
-
    if ($_POST['content_type'] === "video") {
       $video_course = new VideoCourse($connection, $title, $description, $cover_path, $content_path, $duration, $categorie_id, $teacher_id);
       $cours_id = $video_course->add_course();
@@ -40,8 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $document_course = new DocumentCourse($connection, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
       $cours_id = $document_course->add_course();
    }
-   $tagged_cources = new tags_courses($cours_id, $tags, $connection);
-   $tagged_cources->insert_course_tags();
 
    $db_connect->disconnect();
 }
@@ -272,7 +268,7 @@ $db_connect->disconnect();
             
             <!-- Additional inputs -->
             <input class="ml-20 mt-2 hidden" id="document_pages" name="document_pages" type="number" placeholder="Number of Pages" tabindex="8" min="1">
-            <input class="ml-20 mt-2 hidden" id="video_duration" name="video_duration" type="te2Z3xt" placeholder="Video Duration (e.g., 10:30)">
+            <input class="ml-20 mt-2 hidden" id="video_duration" name="video_duration" type="text" placeholder="Video Duration (e.g., 10:30)">
          </fieldset>
 
 
@@ -288,11 +284,6 @@ $db_connect->disconnect();
 </div>
 
 
-
-
-</body>
-</html>
-   
 
 <script>
 
@@ -358,3 +349,7 @@ $db_connect->disconnect();
  });
 
 </script>
+</body>
+</html>
+   
+

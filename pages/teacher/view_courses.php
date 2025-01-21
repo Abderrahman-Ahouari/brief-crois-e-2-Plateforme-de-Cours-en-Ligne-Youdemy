@@ -1,49 +1,46 @@
 <?php
 include('../../classes/connection.php');
 include('../../classes/Course.php');
-include('../../classes/tags.class.php');
 include('../../classes/categorie.class.php');
 include('../../classes/cours_video.php');
 include('../../classes/cours_document.php');
-include('../../classes/tags_courses.php');
 
 
 $db_connect = new Database_connection;
 
-// if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-//    $connection = $db_connect->connect();
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+   $connection = $db_connect->connect();
 
-//    $upload_folder = "../../Uploads/";
+   $upload_folder = "../../Uploads/";
 
-//    $cover_name = basename($_FILES['cover_image']['name']);
-//    $content_name = basename($_FILES['content']['name']);
+   $cover_name = basename($_FILES['cover']['name']);
+   $content_name = basename($_FILES['content']['name']);
 
-//    $cover_path = $upload_folder . $cover_name;
-//    $content_path = $upload_folder . $content_name;
+   $cover_path = $upload_folder . $cover_name;
+   $content_path = $upload_folder . $content_name;
 
-//    move_uploaded_file($_FILES['cover_image']['tmp_name'], $cover_path); 
-//    move_uploaded_file($_FILES['content']['tmp_name'], $content_path); 
+   move_uploaded_file($_FILES['cover']['tmp_name'], $cover_path); 
+   move_uploaded_file($_FILES['content']['tmp_name'], $content_path); 
 
-//    $title = $_POST['title'];
-//    $description = $_POST['description'];
-//    $categorie_id = $_POST['category'];
-//    $teacher_id = 2;
-//    $duration = $_POST['video_duration'];
-//    $nbr_pages = $_POST['document_pages'];
-//    $cours_id;  
-//    $tags = $_POST['tags'];
+   $title = $_POST['title'];
+   $description = $_POST['description'];
+   $categorie_id = $_POST['category'];
+   $teacher_id = 2;
+   $duration = $_POST['duration'];
+   $nbr_pages = $_POST['nbr-pages']; 
+   $cours_id = $_POST['course_id'];
 
-//    if ($_POST['content_type'] === "video") {
-//       $video_course = new VideoCourse($connection, $title, $description, $cover_path, $content_path, $duration, $categorie_id, $teacher_id);
-//       $cours_id = $video_course->add_course();
-//   } elseif ($_POST['content_type'] === "document") {
-//       $document_course = new DocumentCourse($connection, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
-//       $cours_id = $document_course->add_course();
-//    }
+   if ($_POST['content-type'] === "video") {
+      $video_course = new VideoCourse($connection, $title, $description, $cover_path, $content_path, $duration, $categorie_id, $teacher_id);
+      $cours_id = $video_course->modifyCourse();
+  } elseif ($_POST['content-type'] === "document") {
+      $document_course = new DocumentCourse($connection, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
+      $cours_id = $document_course->modifyCourse();
+   }
 
 
-//    $db_connect->disconnect();
-// }
+   $db_connect->disconnect();
+}
 
 
 $connection = $db_connect->connect();
@@ -91,6 +88,7 @@ $db_connect->disconnect();
 
 
 
+
 <div class="p-4 sm:ml-64">
    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
 
@@ -118,28 +116,241 @@ $db_connect->disconnect();
                     <td class="px-6 py-4">
                         <div class="w-16 h-16">
                             <img src="<?= htmlspecialchars($course['cover']) ?>" alt="Cover Image" class="w-full h-full object-cover rounded" />
+                            <input type="hidden" value="<?= htmlspecialchars($course['cover']) ?>">
                         </div>
                     </td>
                     <td class="px-6 py-4"><?= htmlspecialchars($course['course_id']) ?></td>
                     <td class="px-6 py-4"><?= htmlspecialchars($course['title']) ?></td>
                     <td class="px-6 py-4"><?= htmlspecialchars($course['description']) ?></td>
-                    <td class="px-6 py-4"><?= htmlspecialchars($course['content']) ?></td>
+                    <?php if($course['nbr_page'] == NULL){ ?>
+                    <td class="px-6 py-4">
+                        <img src="../../Uploads/film.png" class="w-1/2">
+                        <input type="hidden" value="<?= htmlspecialchars($course['content']) ?>">
+                    </td>
+                    <?php }else{ ?>
+                    <td class="px-6 py-4">
+                        <img src="../../Uploads/pdf.png" class="w-1/2">
+                        <input type="hidden" value="<?= htmlspecialchars($course['content']) ?>">
+                    </td>
+                    <?php } ?>
                     <td class="px-6 py-4"><?= htmlspecialchars($course['duration'] ?? 'N/A') ?></td>
                     <td class="px-6 py-4"><?= htmlspecialchars($course['nbr_page'] ?? 'N/A') ?></td>
                     <td class="px-6 py-4"><?= htmlspecialchars($course['name']) ?></td>
                     <td class="px-6 py-4"><?= htmlspecialchars($course['cours_status']) ?></td>
                     <td class="flex items-center px-6 py-4">
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
+                        <form action="" method="post">
+                            <a href="#" name="delete_course" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                            <a href="#" name="update_course" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
+                        </form>
                     </td>
                 </tr>
             <?php } ?>
         </tbody>
     </table>
-</div>
+</div>  
 
    </div>
 </div>
+
+
+<div id="modify-course-form-container" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+    <div class="relative w-full max-w-[500px] bg-white p-4 rounded-lg shadow-lg">
+        <button id="close-form" class="absolute top-2 right-2 text-gray-600 text-xl">×</button>
+        <form id="modify-course-form" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="course-id" name="course_id" />
+
+            <!-- Title -->
+            <div class="mb-3">
+                <label for="title" class="mb-1 block text-sm font-medium text-[#07074D]">Title</label>
+                <input type="text" name="title" id="title" placeholder="Enter the course title" required
+                    class="w-full rounded border border-[#e0e0e0] bg-white py-1 px-3 text-sm font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-sm" />
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                <label for="description" class="mb-1 block text-sm font-medium text-[#07074D]">Description</label>
+                <textarea name="description" id="description" placeholder="Enter the course description" required
+                    class="w-full rounded border border-[#e0e0e0] bg-white py-1 px-3 text-sm font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-sm"></textarea>
+            </div>
+
+            <!-- Cover Image -->
+            <div class="mb-3">
+                <label for="cover" class="mb-1 block text-sm font-medium text-[#07074D]">Cover Image</label>
+                <input type="file" name="cover" id="cover" required
+                    class="w-full rounded border border-[#e0e0e0] bg-white py-1 px-3 text-sm font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-sm" />
+            </div>
+
+            <!-- Category -->
+            <div class="mb-3">
+                <label for="category" class="mb-1 block text-sm font-medium text-[#07074D]">Category</label>
+                <select name="category" id="category" required
+                    class="w-full rounded border border-[#e0e0e0] bg-white py-1 px-3 text-sm font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-sm">
+                    <?php
+                        $categorie = new Categorie($connection);
+                        $categories = $categorie->read_categories();
+
+                        foreach ($categories as $category) { ?>
+                    <option value="<?= htmlspecialchars($category['categorie_id']) ?>"><?= htmlspecialchars($category['name']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+
+            <!-- Content Type -->
+            <div class="mb-3">
+                <label for="content-type" class="mb-1 block text-sm font-medium text-[#07074D]">Content Type</label>
+                <select name="content-type" id="content-type"
+                    class="w-full rounded border border-[#e0e0e0] bg-white py-1 px-3 text-sm font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-sm">
+                    <option value="document">Document</option>
+                    <option value="video">Video</option>
+                </select>
+            </div>
+
+            <!-- Content -->
+            <div class="mb-3">
+                <label for="content" class="mb-1 block text-sm font-medium text-[#07074D]">Content</label>
+                <input type="file" name="content" id="content" required
+                    class="w-full rounded border border-[#e0e0e0] bg-white py-1 px-3 text-sm font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-sm" />
+            </div>
+
+            <!-- Conditional Inputs (Duration or Number of Pages) -->
+            <div class="mb-3 hidden" id="duration-input">
+                <label for="duration" class="mb-1 block text-sm font-medium text-[#07074D]">Duration (e.g., 2h 30m)</label>
+                <input type="text" name="duration" id="duration" placeholder="Enter video duration" required
+                    class="w-full rounded border border-[#e0e0e0] bg-white py-1 px-3 text-sm font-medium text-[#6B7280]                     outline-none focus:border-[#6A64F1] focus:shadow-sm" />
+            </div>
+
+            <div class="mb-3 hidden" id="nbr-pages-input">
+                <label for="nbr-pages" class="mb-1 block text-sm font-medium text-[#07074D]">Number of Pages</label>
+                <input type="number" name="nbr-pages" id="nbr-pages" placeholder="Enter number of pages" required
+                    class="w-full rounded border border-[#e0e0e0] bg-white py-1 px-3 text-sm font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-sm" />
+            </div>
+
+            <!-- Submit Button -->
+            <div>
+                <button name="modify_course" type="submit"
+                    class="hover:shadow-form w-full rounded bg-[#6A64F1] py-2 px-4 text-center text-sm font-semibold text-white outline-none">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<script>
+    
+   const toggleButton = document.querySelector('[data-drawer-toggle="default-sidebar"]'); // Your toggle button
+   const sidebar = document.getElementById('default-sidebar');
+   const closeButton = document.getElementById('close-sidebar');
+
+   // Function to update the visibility of the close button
+   function updateCloseButton() {
+      if (sidebar.classList.contains('-translate-x-full')) {
+         closeButton.classList.add('hidden'); // Hide the close button
+      } else {
+         closeButton.classList.remove('hidden'); // Show the close button
+            
+      }
+   }
+
+   // Toggle sidebar visibility
+   toggleButton.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      updateCloseButton(); // Update close button visibility
+   });
+
+   // Close sidebar on clicking the close button
+   closeButton.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full'); // Hide sidebar
+      updateCloseButton(); // Update close button visibility
+   });
+
+   // Initial check for close button visibility
+   updateCloseButton()
+
+    // Handle dynamic display of inputs based on content type
+    document.getElementById('content-type').addEventListener('change', function () {
+        const contentType = this.value;
+        const durationInput = document.getElementById('duration-input');
+        const nbrPagesInput = document.getElementById('nbr-pages-input');
+
+        // Reset visibility
+        durationInput.classList.add('hidden');
+        nbrPagesInput.classList.add('hidden');
+
+        // Show appropriate input
+        if (contentType === 'video') {
+            durationInput.classList.remove('hidden');
+        } else if (contentType === 'document') {
+            nbrPagesInput.classList.remove('hidden');
+        }
+    });
+
+
+    document.querySelectorAll('a[name="delete_course"]').forEach((editButton) => {
+    editButton.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // Get the row data
+        const row = this.closest('tr');
+        const id = row.querySelector('td:nth-child(2)').innerText.trim();
+        const title = row.querySelector('td:nth-child(3)').innerText.trim();
+        const description = row.querySelector('td:nth-child(4)').innerText.trim();
+        const category = row.querySelector('td:nth-child(8)').innerText.trim();
+        const duration = row.querySelector('td:nth-child(6)').innerText.trim();
+        const nbrPages = row.querySelector('td:nth-child(7)').innerText.trim();
+        const contentType = nbrPages !== 'N/A' ? 'document' : 'video';
+
+        // Populate the form
+        document.getElementById('title').value = title;
+        document.getElementById('description').value = description;
+
+        // Select category by matching text
+        const categoryDropdown = document.getElementById('category');
+        Array.from(categoryDropdown.options).forEach(option => {
+            if (option.text.trim() === category) {
+                option.selected = true;
+            }
+        });
+
+        document.getElementById('content-type').value = contentType;
+
+        // Show the relevant input fields and populate them
+        if (contentType === 'video') {
+            document.getElementById('duration-input').classList.remove('hidden');
+            document.getElementById('nbr-pages-input').classList.add('hidden');
+            document.getElementById('duration').value = duration;
+        } else {
+            document.getElementById('nbr-pages-input').classList.remove('hidden');
+            document.getElementById('duration-input').classList.add('hidden');
+            document.getElementById('nbr-pages').value = nbrPages;
+        }
+
+        // Add the course ID to a hidden input (if needed for the backend)
+        let hiddenIdField = document.getElementById('course-id');
+        if (!hiddenIdField) {
+            hiddenIdField = document.createElement('input');
+            hiddenIdField.type = 'hidden';
+            hiddenIdField.id = 'course-id';
+            hiddenIdField.name = 'course_id';
+            document.getElementById('modify-course-form').appendChild(hiddenIdField);
+        }
+        hiddenIdField.value = id;
+
+        // Show the form modal
+        document.getElementById('modify-course-form-container').classList.remove('hidden');
+    });
+    });
+
+    // Close the form modal
+    document.getElementById('close-form').addEventListener('click', function () {
+        document.getElementById('modify-course-form-container').classList.add('hidden');
+    });
+
+
+    
+</script>
 
 
 

@@ -1,5 +1,5 @@
 <?php
-class VideoCourse extends Course {
+    class VideoCourse extends Course {
     private $duration;
 
     public function __construct($conn, $title, $description, $cover, $content, $duration, $category_id, $teacher_id) {
@@ -14,8 +14,8 @@ class VideoCourse extends Course {
 
             $query = $this->getConn()->prepare($sql);
 
-            $query->bindParam(':title', $this->title, PDO::PARAM_STR);
             $query->bindParam(':description', $this->description, PDO::PARAM_STR);
+            $query->bindParam(':title', $this->title, PDO::PARAM_STR);
             $query->bindParam(':cover', $this->cover, PDO::PARAM_STR);
             $query->bindParam(':content', $this->content, PDO::PARAM_STR);
             $query->bindParam(':duration', $this->duration, PDO::PARAM_STR);

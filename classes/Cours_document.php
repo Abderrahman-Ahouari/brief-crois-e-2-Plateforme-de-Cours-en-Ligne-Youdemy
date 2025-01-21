@@ -1,6 +1,5 @@
 <?php
 
-
 class DocumentCourse extends Course {
     private $nbr_page;
 
