@@ -173,14 +173,24 @@ WHERE courses.teacher_id = :teacher_id;";
 
 
 
-    public function read_courses() {
+    public function read_courses($status = null) {
         try {
             $sql = "SELECT courses.*, users.*, categories.name
                     FROM courses
-                    inner JOIN categories ON categories.categorie_id = courses.category_id
-                    inner JOIN users ON users.user_id = courses.teacher_id";
+                    INNER JOIN categories ON categories.categorie_id = courses.category_id
+                    INNER JOIN users ON users.user_id = courses.teacher_id";
+            
+            if ($status) {
+                $sql .= " WHERE courses.cours_status = :status";
+            }
     
             $query = $this->conn->prepare($sql);
+    
+
+            if ($status) {
+                $query->bindParam(':status', $status, PDO::PARAM_STR);
+            }
+    
             $query->execute();
     
             return $query->fetchAll(PDO::FETCH_ASSOC);
@@ -188,6 +198,7 @@ WHERE courses.teacher_id = :teacher_id;";
             die("Error reading courses: " . $error->getMessage());
         }
     }
+    
     
 
 
@@ -251,6 +262,25 @@ WHERE courses.teacher_id = :teacher_id;";
                 die("Error fetching enrolled courses: " . $error->getMessage());
             }
         }
+
+
+
+
+        public function accept_reject_course($course_id, $status) {
+            try {
+                $sql = "UPDATE courses SET cours_status = :status WHERE course_id = :course_id";
+                $query = $this->getconn()->prepare($sql);
+                $query->bindParam(':status', $status, PDO::PARAM_STR);
+                $query->bindParam(':course_id', $course_id, PDO::PARAM_INT);
+                $query->execute();
+            } catch (PDOException $error) {
+                die("Error updating user status: " . $error->getMessage());
+            }
+        }
+    
+    
+    
+    
     }
     
     

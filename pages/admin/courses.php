@@ -1,5 +1,34 @@
 <?php
+    include('../../classes/connection.php');
+    include('../../classes/Course.php');
 
+    
+    $db_connect = new Database_connection;
+    $connection = $db_connect->connect();
+
+    $course = new Course($connection);
+
+
+    $status = isset($_POST['status']) ? $_POST['status'] : 'pending';     
+    
+    
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if (isset($_POST['accept_course'])) {
+            $cours_id = $_POST['accept_course_id'];
+            $course->accept_reject_course($cours_id,"accepted");
+        }elseif (isset($_POST['reject_course'])) {
+            $cours_id = $_POST['reject_course_id'];
+            $course->accept_reject_course($cours_id,"rejected");
+        }elseif (isset($_POST['delete_course'])) {
+            $cours_id = $_POST['delete_course_id'];
+            $course->setCourseId($cours_id);
+            $course->deleteCourse();
+        }
+    }
+    
+
+    $courses = $course->read_courses($status); 
+    $db_connect->disconnect();
 ?>
 
 <!DOCTYPE html>
@@ -39,11 +68,113 @@
    </div>
 </aside>
 
+<div class="p-4 sm:ml-64">
+<div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="flex items-center justify-center h-24 rounded bg-gray-50 dark:bg-gray-800">
+            <div class="max-w-sm mx-auto">
+                <form method="POST" action="">
+                    <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Status</label>
+                    <select name="status" id="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="accepted" <?php echo $status == 'accepted' ? 'selected' : ''; ?>>accepted</option>
+                        <option value="rejected" <?php echo $status == 'rejected' ? 'selected' : ''; ?>>rejected</option>
+                        <option value="pending" <?php echo $status == 'pending' ? 'selected' : ''; ?>>pending</option>
+                    </select>
+                    <button type="submit" class="mt-2 p-2 bg-blue-500 text-white rounded">Filter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+
+
+
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <tr>
+        <th scope="col" class="px-6 py-3">Cover</th>
+        <th scope="col" class="p-4">ID</th>
+        <th scope="col" class="px-6 py-3">Title</th>
+        <th scope="col" class="px-6 py-3">Description</th>
+        <th scope="col" class="px-6 py-3">Content</th>
+        <th scope="col" class="px-6 py-3">Duration</th>
+        <th scope="col" class="px-6 py-3">Number of Pages</th>
+        <th scope="col" class="px-6 py-3">Category</th>
+        <th scope="col" class="px-6 py-3">Teacher</th>
+        <th scope="col" class="px-6 py-3">Status</th>
+        <th scope="col" class="px-6 py-3">Action</th>
+    </tr>
+</thead>
+
+<tbody>
+    <?php foreach ($courses as $course) { ?>
+        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+            <td class="px-6 py-4">
+                <div class="w-16 h-16">
+                    <img src="<?= htmlspecialchars($course['cover']) ?>" alt="Cover Image" class="w-full h-full object-cover rounded" />
+                    <input type="hidden" value="<?= htmlspecialchars($course['cover']) ?>">
+                </div>
+            </td>
+            <td class="px-6 py-4"><?= htmlspecialchars($course['course_id']) ?></td>
+            <td class="px-6 py-4"><?= htmlspecialchars($course['title']) ?></td>
+            <td class="px-6 py-4"><?= htmlspecialchars($course['description']) ?></td>
+            <?php if ($course['nbr_page'] == NULL) { ?>
+                <td class="px-6 py-4">
+                    <img src="../../Uploads/film.png" class="w-1/2">
+                    <input type="hidden" value="<?= htmlspecialchars($course['content']) ?>">
+                </td>
+            <?php } else { ?>
+                <td class="px-6 py-4">
+                    <img src="../../Uploads/pdf.png" class="w-1/2">
+                    <input type="hidden" value="<?= htmlspecialchars($course['content']) ?>">
+                </td>
+            <?php } ?>
+            <td class="px-6 py-4"><?= htmlspecialchars($course['duration'] ?? 'N/A') ?></td>
+            <td class="px-6 py-4"><?= htmlspecialchars($course['nbr_page'] ?? 'N/A') ?></td>
+            <td class="px-6 py-4"><?= htmlspecialchars($course['name']) ?></td>
+            <td class="px-6 py-4">
+                <?= htmlspecialchars($course['first_name']) . ' ' . htmlspecialchars($course['last_name']) ?>
+            </td>
+            <td class="px-6 py-4"><?= htmlspecialchars($course['cours_status']) ?></td>
+            <td class="flex items-center px-6 py-4 space-x-2">
+    <!-- Delete Button -->
+    <form action="" method="post">
+        <input name="delete_course_id" type="hidden" value="<?= htmlspecialchars($course['course_id']) ?>">
+        <button name="delete_course" class="text-red-600 dark:text-red-500 hover:underline">Delete</button>
+    </form>
+
+    <!-- Reject Button (visible only if status is 'accepted') -->
+    <?php if (in_array($course['cours_status'], ['accepted', 'pending'])) { ?>
+        <form action="" method="post">
+            <input name="reject_course_id" type="hidden" value="<?= htmlspecialchars($course['course_id']) ?>">
+            <button name="reject_course" class="text-orange-600 dark:text-orange-500 hover:underline">Reject</button>
+        </form>
+    <?php } ?>
+
+    <!-- Accept Button (visible if status is 'rejected' or 'pending') -->
+    <?php if (in_array($course['cours_status'], ['rejected', 'pending'])) { ?>
+        <form action="" method="post">
+            <input name="accept_course_id" type="hidden" value="<?= htmlspecialchars($course['course_id']) ?>">
+            <button name="accept_course" class="text-green-600 dark:text-green-500 hover:underline">Accept</button>
+        </form>
+    <?php } ?>
+</td>
+
+        </tr>
+    <?php } ?>
+</tbody>
+
+        </table>
+    </div>
+
+    </div>
+    </div>
 
 
 <script>
 
-const toggleButton = document.querySelector('[data-drawer-toggle="default-sidebar"]'); // Your toggle button
+    const toggleButton = document.querySelector('[data-drawer-toggle="default-sidebar"]'); // Your toggle button
    const sidebar = document.getElementById('default-sidebar');
    const closeButton = document.getElementById('close-sidebar');
 

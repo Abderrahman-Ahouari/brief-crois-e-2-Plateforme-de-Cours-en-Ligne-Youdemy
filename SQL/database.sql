@@ -34,21 +34,21 @@ CREATE TABLE tags (
 
 
 
-CREATE TABLE courses (
-    course_id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
-    description TEXT NOT NULL,
-    content TEXT NOT NULL,
-    cover TEXT, 
-    duration VARCHAR(20),
-    nbr_page INT,
-    category_id INT,
-    teacher_id INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    cours_status ENUM('accepted', 'rejected', 'pending') DEFAULT 'pending',
-    FOREIGN KEY (category_id) REFERENCES categories(categorie_id) ON DELETE SET NULL,
-    FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
+    CREATE TABLE courses (
+        course_id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        content TEXT NOT NULL,
+        cover TEXT, 
+        duration VARCHAR(20),
+        nbr_page INT,
+        category_id INT,
+        teacher_id INT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        cours_status ENUM('accepted', 'rejected', 'pending') DEFAULT 'pending',
+        FOREIGN KEY (category_id) REFERENCES categories(categorie_id) ON DELETE SET NULL,
+        FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE
+    );
 
 
 
@@ -72,75 +72,65 @@ CREATE TABLE enrollments (
 
 
 
+-- Insert Categories
+INSERT INTO categories (name) VALUES 
+('Math'), 
+('Science'), 
+('History'), 
+('Art'), 
+('Programming');
 
+-- Insert Tags
+INSERT INTO tags (name) VALUES 
+('Beginner'), 
+('Intermediate'), 
+('Advanced'), 
+('AI'), 
+('ML'), 
+('Python'), 
+('Design'), 
+('Web'), 
+('Database'), 
+('Mobile');
 
+-- Insert Users
+INSERT INTO users (first_name, last_name, email, phone, image_profile, password, role, status) VALUES 
+('Alice', 'Smith', 'alice@example.com', '1234567890', NULL, 'password123', 'teacher', 'active'),
+('Bob', 'Jones', 'bob@example.com', '2345678901', NULL, 'password123', 'teacher', 'active'),
+('Charlie', 'Brown', 'charlie@example.com', '3456789012', NULL, 'password123', 'admin', 'active'),
+('David', 'Wilson', 'david@example.com', '4567890123', NULL, 'password123', 'student', 'active'),
+('Ella', 'Johnson', 'ella@example.com', '5678901234', NULL, 'password123', 'student', 'active'),
+('Fiona', 'Davis', 'fiona@example.com', '6789012345', NULL, 'password123', 'teacher', 'inactive'),
+('George', 'Miller', 'george@example.com', '7890123456', NULL, 'password123', 'student', 'inactive'),
+('Hannah', 'Moore', 'hannah@example.com', '8901234567', NULL, 'password123', 'student', 'active'),
+('Ian', 'Taylor', 'ian@example.com', '9012345678', NULL, 'password123', 'teacher', 'active'),
+('Judy', 'Anderson', 'judy@example.com', '0123456789', NULL, 'password123', 'student', 'inactive');
 
+-- Insert Courses
+INSERT INTO courses (title, description, content, cover, duration, nbr_page, category_id, teacher_id) VALUES 
+('Math Basics', 'Introductory math course', 'Content of math basics', NULL, '10h', 50, 1, 1),
+('Advanced Math', 'Deep dive into math', 'Content of advanced math', NULL, '15h', 100, 1, 1),
+('Introduction to Python', 'Learn Python programming', 'Content of Python', NULL, '20h', 200, 5, 2),
+('AI Fundamentals', 'Basics of AI', 'Content of AI', NULL, '25h', 150, 5, 2),
+('Web Development', 'Learn to build websites', 'Content of Web Dev', NULL, '30h', 300, 5, 2),
+('Art History', 'History of Art', 'Content of Art History', NULL, '12h', 75, 4, 1),
+('Modern Art', 'Explore modern art', 'Content of Modern Art', NULL, '14h', 80, 4, 1),
+('Database Systems', 'Basics of DB', 'Content of DB', NULL, '18h', 120, 5, 2),
+('Mobile App Dev', 'Intro to Mobile Dev', 'Content of Mobile Dev', NULL, '20h', 150, 5, 2),
+('Machine Learning', 'Basics of ML', 'Content of ML', NULL, '25h', 180, 5, 2);
 
+-- Insert Enrollments
+INSERT INTO enrollments (student_id, course_id) VALUES 
+(4, 1),
+(4, 2),
+(5, 3),
+(5, 4),
+(6, 5),
+(7, 6);
 
-INSERT INTO users (first_name, last_name, email, phone, image_profile, password, role, status)
-VALUES 
-('Admin', 'User', 'admin@example.com', '1234567890', NULL, 'adminpassword', 'admin', 'active'),
-('John', 'Doe', 'john.doe@example.com', '9876543210', NULL, 'teacherpassword', 'teacher', 'active'),
-('Jane', 'Smith', 'jane.smith@example.com', '5555555555', NULL, 'teacherpassword2', 'teacher', 'active'),
-('Alice', 'Brown', 'alice.brown@example.com', '4444444444', NULL, 'studentpassword', 'student', 'active'),
-('Bob', 'Green', 'bob.green@example.com', '3333333333', NULL, 'studentpassword2', 'student', 'inactive');
-
-INSERT INTO categories (name)
-VALUES 
-('Science'),
-('Mathematics'),
-('Technology'),
-('History'),
-('Arts');
-
-INSERT INTO tags (name)
-VALUES 
-('Physics'),
-('Mathematics'),
-('Programming'),
-('History'),
-('Art'),
-('Advanced'),
-('Basics'),
-('Trends');
-
-INSERT INTO courses (title, description, content, cover, duration, nbr_page, category_id, teacher_id, cours_status)
-VALUES 
-('Physics 101', 'Introduction to Physics', 'Physics content here', NULL, '3 hours', 50, 1, 2, 'accepted'),
-('Calculus Basics', 'Learn the basics of calculus', 'Calculus content here', NULL, '2 hours', 40, 2, 2, 'accepted'),
-('Introduction to Programming', 'Beginner programming course', 'Programming content here', NULL, '4 hours', 60, 3, 3, 'pending'),
-('World History', 'Exploring major historical events', 'History content here', NULL, '5 hours', 70, 4, 2, 'rejected'),
-('Digital Art', 'Create stunning digital artwork', 'Art content here', NULL, '6 hours', 80, 5, 3, 'accepted'),
-('Advanced Physics', 'Dive deeper into physics topics', 'Advanced Physics content here', NULL, '3 hours', 50, 1, 2, 'pending'),
-('Geometry Essentials', 'Essential concepts of geometry', 'Geometry content here', NULL, '2 hours', 45, 2, 3, 'accepted'),
-('Modern Technology Trends', 'Latest in technology', 'Tech content here', NULL, '3 hours', 55, 3, 2, 'accepted');
-
-INSERT INTO enrollments (student_id, course_id)
-VALUES 
-(4, 1), 
-(4, 2), 
-(5, 3), 
-(5, 4), 
-(4, 5), 
-(5, 6), 
-(4, 7), 
-(5, 8);
-
-INSERT INTO course_tags (course_id, tag_id)
-VALUES 
-(1, 1), 
-(1, 6), 
-(2, 2), 
-(2, 7), 
-(3, 3), 
-(3, 7), 
-(4, 4), 
-(5, 5), 
-(6, 1), 
-(6, 6), 
-(7, 2), 
-(8, 3), 
-(8, 8);
-
-
-
+-- Insert Course Tags
+INSERT INTO course_tags (course_id, tag_id) VALUES 
+(1, 1), (1, 2), (2, 3),
+(3, 4), (4, 5), (5, 6),
+(6, 7), (7, 8), (8, 9),
+(9, 10);
