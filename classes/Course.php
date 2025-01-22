@@ -119,10 +119,22 @@ class Course {
             die("Error deleting course: " . $error->getMessage());
         }
     }
+
+
+
     
-    public function readCourse() {
+    public function read_course_details() {
         try {
-            $sql = "SELECT * FROM courses WHERE course_id = :course_id";
+            $sql = "SELECT courses.*, 
+                           categories.name AS category_name, 
+                           users.first_name AS teacher_first_name, 
+                           users.last_name AS teacher_last_name, 
+                           users.phone AS teacher_phone, 
+                           users.image_profile AS teacher_profile_image
+                    FROM courses
+                    LEFT JOIN categories ON categories.categorie_id = courses.category_id
+                    LEFT JOIN users ON users.user_id = courses.teacher_id
+                    WHERE courses.course_id = :course_id";
     
             $query = $this->conn->prepare($sql);
     
@@ -132,9 +144,12 @@ class Course {
     
             return $query->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $error) {
-            die("Error reading course: " . $error->getMessage());
+            die("Error reading course details: " . $error->getMessage());
         }
     }
+
+    
+
     
     public function read_teacher_courses() {
         try {
@@ -155,6 +170,89 @@ WHERE courses.teacher_id = :teacher_id;";
             die("Error reading courses by teacher: " . $error->getMessage());
         }
     }
+
+
+
+    public function read_courses() {
+        try {
+            $sql = "SELECT courses.*, users.*, categories.name
+                    FROM courses
+                    inner JOIN categories ON categories.categorie_id = courses.category_id
+                    inner JOIN users ON users.user_id = courses.teacher_id";
+    
+            $query = $this->conn->prepare($sql);
+            $query->execute();
+    
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $error) {
+            die("Error reading courses: " . $error->getMessage());
+        }
+    }
+    
+
+
+
+    public function search_courses($search_name) {
+        try {
+            $sql = "SELECT courses.*, users.*, categories.name
+                    FROM courses
+                    inner JOIN categories ON categories.categorie_id = courses.category_id
+                    inner JOIN users ON users.user_id = courses.teacher_id  
+                    WHERE courses.title LIKE :search_name OR courses.description LIKE :search_name";
+    
+            $query = $this->conn->prepare($sql);
+            $search_term = '%' . $search_name . '%';
+            $query->bindParam(':search_name', $search_term, PDO::PARAM_STR);
+    
+            $query->execute();
+    
+            return $query->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $error) {
+            die("Error searching courses: " . $error->getMessage());
+        }
+    }
+    
+
+
+    public function enroll_student($user_id, $course_id) {
+        try {
+            $sql = "INSERT INTO enrollments (student_id, course_id) VALUES (:user_id, :course_id)";
+            
+            $query = $this->conn->prepare($sql);
+    
+            $query->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+            $query->bindParam(':course_id', $course_id, PDO::PARAM_INT);
+    
+            $query->execute();
+            return true; // Return true if the enrollment was successful
+        } catch (PDOException $error) {
+            die("Error enrolling student: " . $error->getMessage());
+        }
+
+
+
+
+        public function get_enrolled_courses($user_id) {
+            try {
+                $sql = "SELECT courses.*  
+                        FROM enrollments
+                        INNER JOIN courses ON enrollments.course_id = courses.course_id
+                        WHERE enrollments.student_id = :user_id";
+        
+                $query = $this->conn->prepare($sql);
+        
+                $query->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        
+                $query->execute();
+        
+                return $query->fetchAll(PDO::FETCH_ASSOC); // Fetch all enrolled courses
+            } catch (PDOException $error) {
+                die("Error fetching enrolled courses: " . $error->getMessage());
+            }
+        }
+    }
+    
+    
     
 }
 

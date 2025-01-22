@@ -25,7 +25,7 @@ DROP TABLE enrollments  ;
     CREATE TABLE categories (
     categorie_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL
-);
+    );
 
 CREATE TABLE tags (
     tag_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -141,4 +141,6 @@ VALUES
 (7, 2), 
 (8, 3), 
 (8, 8);
+
+
 
