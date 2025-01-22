@@ -86,7 +86,7 @@ $db_connect->disconnect();
                     <td class="px-6 py-4">
                         <form action="view_course.php" method="GET" class="inline">
                             <input type="hidden" name="course_id" value="<?= htmlspecialchars($course['course_id']) ?>">
-                            <button type="submit" 
+                            <a href="course_details.php?course_id=<?= htmlspecialchars($course['course_id']) ?>" type="submit" 
                                     class="text-blue-600 dark:text-blue-500 hover:underline">
                                 Consulter
                             </button>

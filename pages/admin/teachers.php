@@ -8,13 +8,26 @@ $connection = $db_connect->connect();
 $status = isset($_POST['status']) ? $_POST['status'] : 'active'; 
 $role = "teacher"; 
 
+$teacher = new admin($connection);
 
-$students = new admin($connection);
-$students_list = $students->read_users($role, $status);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['activate_user'])) {
+        $teacher_id = $_POST['user_id'];
+        $teacher->activate_inactivate_user($teacher_id,"active");
+    }elseif (isset($_POST['inactivate_user'])) {
+        $teacher_id = $_POST['user_id'];
+        $teacher->activate_inactivate_user($teacher_id,"inactive");
+    }elseif (isset($_POST['delete_user'])) {
+        $teacher_id = $_POST['user_id'];
+        $teacher->delete_user($teacher_id);
+    }
+}
+
+$teachers_list = $teacher->read_users($role, $status);
 
 $db_connect->disconnect();
 ?>
-z
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,17 +37,34 @@ z
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-<aside id="default-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
-    <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-        <ul class="space-y-2 font-medium">
-            <li><a href="statistics.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="ms-3">Statistics</span></a></li>
-            <li><a href="categories.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">Categories</span></a></li>
-            <li><a href="Tags.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">Tags</span></a></li>
-            <li><a href="students.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">Students</span></a></li>
-            <li><a href="teachers.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">Teachers</span></a></li>
-        </ul> 
-    </div>
+<button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+   <span class="sr-only">Open sidebar</span>
+   <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+   <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+   </svg>
+   </button>
+
+   <aside id="default-sidebar"  class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
+      <div class="h-full px-3 py-4 overflow-y-auto">
+         <!-- Close Button -->
+         <button id="close-sidebar" class="hidden absolute top-3 right-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+            <span class="sr-only">Close sidebar</span>
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path>
+         </svg>
+      </button>
+      <!-- Sidebar Content -->
+      <ul class="space-y-2 font-medium">
+         <li><a href="statistics.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="ms-3">Statistics</span></a></li>
+         <li><a href="categories.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">categories</span></a></li>
+         <li><a href="Tags.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">tags</span></a></li>
+         <li><a href="students.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="ms-3">students</span></a></li>
+         <li><a href="teachers.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">teachers</span></a></li>
+         <li><a href="courses.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">courses</span></a></li>
+      </ul>
+   </div>
 </aside>
+
 
 <div class="p-4 sm:ml-64">
     <!-- Filter Status Dropdown -->
@@ -71,38 +101,38 @@ z
             </thead>
             <tbody>
                 <!-- Loop through the students list -->
-                <?php foreach ($students_list as $student): ?>
+                <?php foreach ($teachers_list as $teache): ?>
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <td class="px-6 py-4"><?php echo $student['user_id']; ?></td>
+                        <td class="px-6 py-4"><?php echo $teache['user_id']; ?></td>
                         <td class="px-6 py-4">
-                            <img src="<?php echo $student['image_profile']; ?>" alt="Profile" class="w-10 h-10 rounded-full">
+                            <img src="<?php echo $teache['image_profile']; ?>" alt="Profile" class="w-10 h-10 rounded-full">
                         </td>
-                        <td class="px-6 py-4"><?php echo $student['first_name']; ?></td>
-                        <td class="px-6 py-4"><?php echo $student['last_name']; ?></td>
-                        <td class="px-6 py-4"><?php echo $student['email']; ?></td>
-                        <td class="px-6 py-4"><?php echo $student['phone']; ?></td>
-                        <td class="px-6 py-4"><?php echo ucfirst($student['role']); ?></td>
+                        <td class="px-6 py-4"><?php echo $teache['first_name']; ?></td>
+                        <td class="px-6 py-4"><?php echo $teache['last_name']; ?></td>
+                        <td class="px-6 py-4"><?php echo $teache['email']; ?></td>
+                        <td class="px-6 py-4"><?php echo $teache['phone']; ?></td>
+                        <td class="px-6 py-4"><?php echo ucfirst($teache['role']); ?></td>
                         <td class="px-6 py-4">
                             <!-- Status Color -->
-                            <span class="px-2 py-1 rounded-full <?php echo $student['status'] == 'active' ? 'bg-green-500' : 'bg-red-500'; ?> text-white">
-                                <?php echo ucfirst($student['status']); ?>
+                            <span class="px-2 py-1 rounded-full <?php echo $teache['status'] == 'active' ? 'bg-green-500' : 'bg-red-500'; ?> text-white">
+                                <?php echo ucfirst($teache['status']); ?>
                             </span>
                         </td>
                         <td class="px-6 py-4">
                             <!-- Actions: Activate/Inactivate -->
-                            <?php if ($student['status'] == 'inactive'): ?>
-                                <form action="activate.php" method="post" class="inline">
-                                    <input type="hidden" name="user_id" value="<?php echo $student['user_id']; ?>">
+                            <?php if ($teache['status'] == 'inactive'): ?>
+                                <form method="post" class="inline">
+                                    <input type="hidden" name="user_id" value="<?php echo $teache['user_id']; ?>">
                                     <button type="submit" name="activate_user" class="font-medium text-green-600 hover:underline">Activate</button>
                                 </form>
                             <?php else: ?>
-                                <form action="inactivate.php" method="post" class="inline mx-2">
-                                    <input type="hidden" name="user_id" value="<?php echo $student['user_id']; ?>">
+                                <form method="post" class="inline mx-2">
+                                    <input type="hidden" name="user_id" value="<?php echo $teache['user_id']; ?>">
                                     <button type="submit" name="inactivate_user" class="font-medium text-yellow-600 hover:underline">Inactivate</button>
                                 </form>
                             <?php endif; ?>
-                            <form action="delete.php" method="post" class="inline">
-                                <input type="hidden" name="user_id" value="<?php echo $student['user_id']; ?>">
+                            <form method="post" class="inline">
+                                <input type="hidden" name="user_id" value="<?php echo $teache['user_id']; ?>">
                                 <button type="submit" name="delete_user" class="font-medium text-red-600 dark:text-red-700 hover:underline">Delete</button>
                             </form>
                         </td>
@@ -112,5 +142,38 @@ z
         </table>
     </div>
 </div>
+
+<script>
+
+const toggleButton = document.querySelector('[data-drawer-toggle="default-sidebar"]'); // Your toggle button
+   const sidebar = document.getElementById('default-sidebar');
+   const closeButton = document.getElementById('close-sidebar');
+
+   // Function to update the visibility of the close button
+   function updateCloseButton() {
+      if (sidebar.classList.contains('-translate-x-full')) {
+         closeButton.classList.add('hidden'); // Hide the close button
+      } else {
+         closeButton.classList.remove('hidden'); // Show the close button
+            
+      }
+   }
+
+   // Toggle sidebar visibility
+   toggleButton.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      updateCloseButton(); // Update close button visibility
+   });
+
+   // Close sidebar on clicking the close button
+   closeButton.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full'); // Hide sidebar
+      updateCloseButton(); // Update close button visibility
+   });
+
+   // Initial check for close button visibility
+   updateCloseButton();
+   
+</script>   
 </body>
 </html>

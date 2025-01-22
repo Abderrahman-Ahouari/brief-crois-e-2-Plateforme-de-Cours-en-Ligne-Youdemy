@@ -9,29 +9,53 @@ include('user.class.php');
 
         public function read_users($role, $status) {
             try {
-                // Prepare the SQL query with placeholders
                 $sql = "SELECT * FROM users WHERE role = :role AND status = :status";
     
-                // Prepare the statement
                 $query = $this->getconn()->prepare($sql);
     
-                // Bind the parameters
                 $query->bindParam(':role', $role, PDO::PARAM_STR);
                 $query->bindParam(':status', $status, PDO::PARAM_STR);
     
-                // Execute the query
                 $query->execute();
     
-                // Fetch all the matching users
                 $users = $query->fetchAll(PDO::FETCH_ASSOC);
     
-                // Return the users
                 return $users;
     
             } catch (PDOException $error) {
                 die("Error fetching users: " . $error->getMessage());
             }
         }
+
+
+
+        public function delete_user($user_id) {
+            try {
+                $sql = "DELETE FROM users WHERE user_id = :user_id";
+                $query = $this->getconn()->prepare($sql);
+                $query->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                $query->execute();
+            } catch (PDOException $error) {
+                die("Error deleting user: " . $error->getMessage());
+            }
+        }
+
+        
+
+        public function activate_inactivate_user($user_id, $status) {
+            try {
+                $sql = "UPDATE users SET status = :status WHERE user_id = :user_id";
+                $query = $this->getconn()->prepare($sql);
+                $query->bindParam(':status', $status, PDO::PARAM_STR);
+                $query->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                $query->execute();
+            } catch (PDOException $error) {
+                die("Error updating user status: " . $error->getMessage());
+            }
+        }
+        
     
     }
+
+
 ?>
