@@ -89,6 +89,14 @@ class User {
         $this->status = $status;
     }
 
+
+    public function getconn() {
+        return $this->conn;
+    }
+    public function setconn($connection) {
+        $this->conn = $connection;
+    }
+
     public function signup(){
         session_start(); 
        try{

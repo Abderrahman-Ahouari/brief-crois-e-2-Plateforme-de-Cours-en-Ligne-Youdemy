@@ -22,7 +22,7 @@ DROP TABLE enrollments  ;
 
 
 
-CREATE TABLE categories (
+    CREATE TABLE categories (
     categorie_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
