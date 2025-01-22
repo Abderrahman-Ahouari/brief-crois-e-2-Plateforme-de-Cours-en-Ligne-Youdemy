@@ -38,14 +38,15 @@
             $nbr_pages = $_POST['nbr_pages']; 
             $cours_id = $_POST['course_id']; 
 
+            
+
             if ($_POST['content_type'] === "video") {
-                $video_course = new VideoCourse($connection, $title, $description, $cover_path, $content_path, $duration, $categorie_id, $teacher_id);
+                $video_course = new VideoCourse($connection, $cours_id, $title, $description, $cover_path, $content_path, $duration, $categorie_id, $teacher_id);
                 $video_course->modifyCourse();
             } elseif ($_POST['content_type'] === "document") {
-                $document_course = new DocumentCourse($connection, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
+                $document_course = new DocumentCourse($connection, $cours_id, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
                 $document_course->modifyCourse();
-            }
-            
+             }
         }
         
     $db_connect->disconnect();
@@ -77,7 +78,7 @@
     </svg>
     </button>
 
-    <aside id="default-sidebar" class="hidden fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
+    <aside id="default-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
     <div class="h-full px-3 py-4 overflow-y-auto">
         <!-- Close Button -->
         <button id="close-sidebar" class="hidden absolute top-3 right-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">

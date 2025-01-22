@@ -53,7 +53,7 @@ class DocumentCourse extends Course {
                         duration = NULL, 
                         category_id = :category_id, 
                         cover = :cover, 
-                        status = 'pending'
+                        cours_status = 'pending'
                     WHERE course_id = :course_id";
     
             $query = $this->getConn()->prepare($sql);

@@ -1,7 +1,7 @@
 <?php
 
 
-    class VideoCourse extends Course {
+    class VideoCourse extends Course { 
     private $duration;
  
     public function __construct($conn, $cours_id = null, $title = null, $description = null, $cover = null, $content = null, $duration = null, $category_id = null, $teacher_id = null) {
