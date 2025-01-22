@@ -31,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    $duration = $_POST['video_duration'];
    $nbr_pages = $_POST['document_pages'];
    $cours_id;  
+   $tags = $_POST['tags'];
+
    if ($_POST['content_type'] === "video") {
       $video_course = new VideoCourse($connection, $title, $description, $cover_path, $content_path, $duration, $categorie_id, $teacher_id);
       $cours_id = $video_course->add_course();
@@ -39,7 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $cours_id = $document_course->add_course();
    }
 
-   $db_connect->disconnect();
+   $cours_tags = new tags_courses($cours_id, $tags, $connection);
+   
+   $cours_tags->insert_course_tags();
+   $db_connect->disconnect();             
 }
 
 
@@ -190,7 +195,7 @@ $db_connect->disconnect();
    </svg>
 </button>
 
-<aside id="default-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
+<aside id="default-sidebar"  class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
    <div class="h-full px-3 py-4 overflow-y-auto">
       <!-- Close Button -->
       <button id="close-sidebar" class="hidden absolute top-3 right-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
