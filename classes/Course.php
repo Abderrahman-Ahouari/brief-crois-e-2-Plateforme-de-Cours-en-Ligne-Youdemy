@@ -228,13 +228,14 @@ WHERE courses.teacher_id = :teacher_id;";
         } catch (PDOException $error) {
             die("Error enrolling student: " . $error->getMessage());
         }
+    }
 
 
 
 
         public function get_enrolled_courses($user_id) {
             try {
-                $sql = "SELECT courses.*  
+                $sql = "SELECT courses.* 
                         FROM enrollments
                         INNER JOIN courses ON enrollments.course_id = courses.course_id
                         WHERE enrollments.student_id = :user_id";
@@ -254,7 +255,7 @@ WHERE courses.teacher_id = :teacher_id;";
     
     
     
-}
+
 
 
 

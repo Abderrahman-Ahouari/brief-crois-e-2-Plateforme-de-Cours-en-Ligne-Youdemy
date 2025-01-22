@@ -2,27 +2,33 @@
 include('../../classes/connection.php');
 include('../../classes/Course.php');
 
-// Read courses
+
+$user_id = 2;
+// $user_id = $_SESSION['user_id'];
+
 $db_connect = new Database_connection;
 $connection = $db_connect->connect();
 
 $course = new Course($connection);
+
 $courses = $course->read_courses();
 
-$db_connect->disconnect();
-
-// Search courses
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $connection = $db_connect->connect();
-
-    $search_name = $_POST['search_name'] ?? ''; // Handle input safely
-
-    $course = new Course($connection);
-    $courses = $course->search_courses($search_name);
-
-    $db_connect->disconnect();
+    if (isset($_POST['search'])) {
+        $search_name = $_POST['search_name'];
+        $courses = $course->search_courses($search_name);
+    }
+    elseif (isset($_POST['enroll'])) {
+        $course_id = $_POST['course_id']; 
+            $enrollment_success = $course->enroll_student($user_id, $course_id);        
+    }    
 }
+
+
+$db_connect->disconnect();
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -129,68 +135,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
+<header class="bg-gray-800 text-white shadow-md">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <!-- Logo -->
+        <a href="catalogue.php" class="text-2xl font-bold">
+            youdemy
+        </a>
+        
+        <!-- Navigation Links -->
+        <nav class="space-x-4">
+            <a href="catalogue.php" class="text-gray-300 hover:text-white">Catalogue</a>
+            <a href="user_courses.php" class="text-gray-300 hover:text-white">Mes Cours</a>
+        </nav>
+
+        <!-- Logout Button -->
+        <form action="logout.php" method="POST" class="inline">
+            <button type="submit" 
+                    class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition duration-300">
+                Logout
+            </button>
+        </form>
+    </div>
+</header>
+
 <body>
     <div class="container">
-        <form class="search-bar" method="POST" action="">
+        <!-- Search Form -->
+        <form class="search-bar" method="POST">
             <input type="text" name="search_name" id="searchInput" placeholder="Search for courses...">
-            <button type="submit">Search</button>
+            <button type="submit" name="search">Search</button>
         </form>
 
-        <div class="course-grid" id="courseGrid">
-                <?php foreach ($courses as $course){ ?>
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform transition hover:scale-105 hover:shadow-xl">
-    <img src="<?= htmlspecialchars($course['cover']) ?>" 
-         alt="Image de <?= htmlspecialchars($course['title']) ?>" 
-         class="w-full h-48 object-cover">
-    <div class="p-6">
-        <!-- Category Badge -->
-        <div class="flex justify-between items-center mb-4">
-            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
-                <?= htmlspecialchars($course['name']) ?>
-            </span>
-        </div>
-        
-        <!-- Course Title -->
-        <h2 class="text-xl font-bold text-gray-900 mb-3">
-            <?= htmlspecialchars($course['title']) ?>
-        </h2>
-        
-        <!-- Teacher Info -->
-        <div class="flex items-center space-x-3 mb-4">
-            <img src="<?= htmlspecialchars($course['image_profile']) ?>" 
-                 alt="Image de <?= htmlspecialchars($course['first_name']) ?>" 
-                 class="w-8 h-8 rounded-full object-cover">
-            <span class="text-gray-600 text-sm">
-                <?= htmlspecialchars($course['first_name']) ?>
-            </span>
-        </div>
-        
-        <!-- Course Description -->
-        <p class="text-gray-600 text-sm mb-4">
-            <?= htmlspecialchars($course['description']) ?>
-        </p>
-        
-        <!-- Action Buttons -->
-        <div class="flex space-x-2 justify-center">
-            <!-- Inscription Button -->
-            <form action="inscription.php" method="POST" class="w-1/2">
-                <input type="hidden" name="course_id" value="<?= htmlspecialchars($course['course_id']) ?>">
-                <button type="submit" 
-                        class="w-full text-center bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition duration-300">
-                    Inscription
-                </button>
-            </form>
+        <!-- Courses Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <?php foreach ($courses as $course) { ?>
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden transform transition hover:scale-105 hover:shadow-xl">
+                    <img src="<?= htmlspecialchars($course['cover']) ?>" 
+                         alt="<?= htmlspecialchars($course['title']) ?>" 
+                         class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <!-- Category Badge -->
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                                <?= htmlspecialchars($course['name']) ?>
+                            </span>
+                        </div>
+                        <!-- Course Title -->
+                        <h2 class="text-xl font-bold text-gray-900 mb-3">
+                            <?= htmlspecialchars($course['title']) ?>
+                        </h2>
+                        <!-- Teacher Info -->
+                        <div class="flex items-center space-x-3 mb-4">
+                            <img src="<?= htmlspecialchars($course['image_profile']) ?>" 
+                                 alt="<?= htmlspecialchars($course['first_name']) ?>" 
+                                 class="w-8 h-8 rounded-full object-cover">
+                            <span class="text-gray-600 text-sm">
+                                <?= htmlspecialchars($course['first_name']) ?>
+                            </span>
+                        </div>
+                        <!-- Course Description -->
+                        <p class="text-gray-600 text-sm mb-4">
+                            <?= htmlspecialchars($course['description']) ?>
+                        </p>
+                        <!-- Enroll Button -->
+                        <form method="POST">
+                            <input type="hidden" name="course_id" value="<?= htmlspecialchars($course['course_id']) ?>">
+                            <button type="submit" name="enroll" 
+                                    class="w-full text-center bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition duration-300">
+                                Inscription
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <?php } ?>
         </div>
     </div>
-</div>
-                <?php } ?>
-        </div>
-    </div>
-
-
-
-<!-- Dynamic Course Card -->
-
-
 </body>
 </html>
