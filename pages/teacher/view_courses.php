@@ -12,14 +12,6 @@
     $connection = $db_connect->connect();
 
 
-    // manage access
-    $user = new User($connection);
-   $status = $user->verify_user_status();
-   echo $status['status'];
-
-   if ($status['status'] === "inactive") {
-      header("Location: ../rejected.php");
-  }
 
 if ($_SESSION['role'] !== 'teacher') {
    header("Location: ../student/catalogue.php");
@@ -67,7 +59,12 @@ if ($_SESSION['role'] !== 'teacher') {
                 $document_course = new DocumentCourse($connection, $cours_id, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
                 $document_course->modifyCourse();
              }
-        }
+        }elseif (isset($_POST['logout'])) {
+            $user = new user();
+            $user->logout();
+            header("Location: ../signup.php");
+      
+         }
         
     $db_connect->disconnect();
     }
@@ -111,6 +108,15 @@ if ($_SESSION['role'] !== 'teacher') {
             <li><a href="statistics.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="ms-3">Statistics</span></a></li>
             <li><a href="add_course.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">Create a course</span></a></li>
             <li><a href="view_courses.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">View courses</span></a></li>
+            <li>
+         <form action="" method="POST" class="inline">
+            <button type="submit" 
+                    class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition duration-300"
+                    name="logout">
+                Logout
+            </button>
+        </form>
+         </li>
         </ul>
     </div>
     </aside>

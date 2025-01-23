@@ -1,21 +1,14 @@
 <?php
 include('../../classes/connection.php');
-include('../../classes/admin.php');
 include('../../classes/user.class.php');
+include('../../classes/admin.php');
 session_start();
 
 $db_connect = new Database_connection;
 $connection = $db_connect->connect();
 
 
-    // manage access
-    $user = new User($connection);
-   $status = $user->verify_user_status();
-   echo $status['status'];
 
-   if ($status['status'] === "inactive") {
-      header("Location: ../rejected.php");
-  }
 
 
 if ($_SESSION['role'] !== 'admin') {
@@ -39,7 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }elseif (isset($_POST['delete_user'])) {
         $teacher_id = $_POST['user_id'];
         $teacher->delete_user($teacher_id);
-    }
+    }elseif (isset($_POST['logout'])) {
+        $user = new user();
+        $user->logout();
+        header("Location: ../signup.php");
+     }
 }
 
 $teachers_list = $teacher->read_users($role, $status);
@@ -79,8 +76,15 @@ $db_connect->disconnect();
          <li><a href="Tags.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">tags</span></a></li>
          <li><a href="students.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="ms-3">students</span></a></li>
          <li><a href="teachers.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">teachers</span></a></li>
-         <li><a href="courses.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">courses</span></a></li>
-      </ul>
+         <li><a href="courses.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">courses</span></a></li>         <li>
+         <form action="" method="POST" class="inline">
+            <button type="submit" 
+                    class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition duration-300"
+                    name="logout">
+                Logout
+            </button>
+        </form>
+         </li>      </ul>
    </div>
 </aside>
 

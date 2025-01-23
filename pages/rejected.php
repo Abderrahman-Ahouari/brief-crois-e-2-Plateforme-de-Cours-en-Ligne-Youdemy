@@ -11,7 +11,7 @@ $connection = $db_connect->connect();
 
 $user = new User($connection); 
 $status = $user->verify_user_status();
-if ($status['status'] !== "inactive") {
+if ($status['status'] !== "inactive") { 
     header("Location: ../pages/teacher/add_course.php");
 }
 

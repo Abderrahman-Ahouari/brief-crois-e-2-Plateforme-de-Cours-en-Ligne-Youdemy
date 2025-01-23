@@ -11,14 +11,6 @@ $db_connect = new Database_connection;
 $connection = $db_connect->connect();
 
 
-    // manage access
-    $user = new User($connection);
-   $status = $user->verify_user_status();
-   echo $status['status'];
-
-   if ($status['status'] === "inactive") {
-      header("Location: ../rejected.php");
-  }
 
 if ($_SESSION['role'] !== 'student') {
    header("Location: ../admin/courses.php");
@@ -40,7 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif (isset($_POST['enroll'])) {
         $course_id = $_POST['course_id']; 
             $enrollment_success = $course->enroll_student($user_id, $course_id);        
-    }    
+    }elseif (isset($_POST['logout'])) {
+        $user = new user();
+        $user->logout();
+        header("Location: ../signup.php");
+     } 
 }
 
 
@@ -169,8 +165,8 @@ $db_connect->disconnect();
         </nav>
 
         <!-- Logout Button -->
-        <form action="logout.php" method="POST" class="inline">
-            <button type="submit" 
+        <form method="POST" class="inline">
+            <button name="logout" type="submit" 
                     class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition duration-300">
                 Logout
             </button>

@@ -1,5 +1,5 @@
 <?php
-class User {
+ class User {
 
     private $user_id;
     private $first_name;
@@ -167,7 +167,6 @@ class User {
         public function logout(){
             session_unset();    
             session_destroy();
-            header("location: ../pages/signup.php");
         }
 
         function verify_user_status() {

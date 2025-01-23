@@ -1,5 +1,4 @@
 <?php
-include('user.class.php');
     class admin extends user{
         public function __construct($conn = null, $first_name = null, $last_name = null, $email = null, $phone = null, $password = null, $role = null, $status = null) {
             parent::__construct($conn, $first_name, $last_name, $email, $phone, $password, $role, $status);

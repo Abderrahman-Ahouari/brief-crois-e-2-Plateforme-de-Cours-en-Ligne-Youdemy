@@ -15,16 +15,10 @@ $connection = $db_connect->connect();
 
 
 
-    // manage access
-    $user = new User($connection);
-   $status = $user->verify_user_status();
-   echo $status['status'];
+if (!$_SESSION) {
+   header("Location: ../signup.php");
 
-   if ($status['status'] === "inactive") {
-      header("Location: ../rejected.php");
-  }
-
-if ($_SESSION['role'] !== 'teacher') {
+}elseif ($_SESSION['role'] !== 'teacher') {
    header("Location: ../student/catalogue.php");
    exit;
 }
@@ -60,12 +54,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
   } elseif ($_POST['content_type'] === "document") {
       $document_course = new DocumentCourse($connection, null, $title, $description, $cover_path, $content_path, $nbr_pages, $categorie_id, $teacher_id);
       $cours_id = $document_course->add_course();
+   }elseif (isset($_POST['logout'])) {
+      $user = new user();
+      $user->logout();
+      header("Location: ../signup.php");
    }
 
    $cours_tags = new tags_courses($cours_id, $tags, $connection);
    
    $cours_tags->insert_course_tags();
-   $db_connect->disconnect();             
+   $db_connect->disconnect();
+   header("Location: ../signup.php");             
 }
 
 
@@ -215,7 +214,7 @@ $db_connect->disconnect();
    </svg>
    </button>
 
-   <aside id="default-sidebar"  class="hidden fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
+   <aside id="default-sidebar"  class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
       <div class="h-full px-3 py-4 overflow-y-auto">
          <!-- Close Button -->
          <button id="close-sidebar" class="hidden absolute top-3 right-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
@@ -229,6 +228,15 @@ $db_connect->disconnect();
          <li><a href="statistics.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="ms-3">Statistics</span></a></li>
          <li><a href="add_course.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">Create a course</span></a></li>
          <li><a href="view_courses.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"><span class="flex-1 ms-3 whitespace-nowrap">View courses</span></a></li>
+         <li>
+         <form action="" method="POST" class="inline">
+            <button type="submit" 
+                    class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition duration-300"
+                    name="logout">
+                Logout
+            </button>
+        </form>
+         </li>
       </ul>
    </div>
 </aside>
