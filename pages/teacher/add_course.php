@@ -6,9 +6,23 @@ include('../../classes/categorie.class.php');
 include('../../classes/cours_video.php');
 include('../../classes/cours_document.php');
 include('../../classes/tags_courses.php');
+include('../../classes/user.class.php');
 
 
 $db_connect = new Database_connection;
+$connection = $db_connect->connect();
+
+
+
+    // manage access
+    $user = new User($connection);
+$user->verify_user_status();
+if ($_SESSION['role'] !== 'teacher') {
+   header("Location: ../student/catalogue.php");
+   exit;
+}
+
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){
    $connection = $db_connect->connect();
@@ -48,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
 }
 
 
-$connection = $db_connect->connect();
 
 $categorie = new Categorie($connection);
 $categories = $categorie->read_categories();

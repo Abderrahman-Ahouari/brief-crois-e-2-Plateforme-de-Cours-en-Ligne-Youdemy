@@ -1,12 +1,23 @@
 <?php
 include('../../classes/connection.php');
 include('../../classes/Course.php');
+include('../../classes/user.class.php');
 
 $user_id = 2;
 // $user_id = $_SESSION['user_id'];
 
 $db_connect = new Database_connection;
 $connection = $db_connect->connect();
+
+
+    // manage access
+    $user = new User($connection);
+$user->verify_user_status();
+if ($_SESSION['role'] !== 'student') {
+   header("Location: ../admin/courses.php");
+   exit;
+}
+
 
 $course = new Course($connection);
 

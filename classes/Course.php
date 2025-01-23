@@ -11,7 +11,7 @@ class Course {
     private $status;
     private $conn;
 
-    public function __construct($conn, $course_id = null, $title = null, $cover = null, $description = null, $content = null, $category_id = null, $teacher_id = null, $status = null) {
+    public function __construct($conn = null, $course_id = null, $title = null, $cover = null, $description = null, $content = null, $category_id = null, $teacher_id = null, $status = null) {
         $this->conn = $conn;
         $this->course_id = $course_id;
         $this->title = $title;
@@ -278,8 +278,11 @@ WHERE courses.teacher_id = :teacher_id;";
             }
         }
     
-    
-    
+
+
+
+        
+  
     
     }
     

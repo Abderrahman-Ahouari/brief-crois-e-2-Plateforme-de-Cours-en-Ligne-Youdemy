@@ -1,8 +1,21 @@
 <?php
 include('../../classes/connection.php');
 include('../../classes/categorie.class.php');
+include('../../classes/user.class.php');
+
 
 $db_connect = new Database_connection;
+$connection = $db_connect->connect();
+
+$user = new User($connection);
+$user->verify_user_status();
+if ($_SESSION['role'] !== 'admin') {
+   header("Location: ../teacher/add_course.php");
+   exit;
+}
+
+
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    $connection = $db_connect->connect();

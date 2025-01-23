@@ -3,6 +3,14 @@
    include('../classes/user.class.php');
 
    $db_connect = new Database_connection;
+   
+   session_start();
+
+   if(!$_SESSION){
+  }else{
+    header("Location: student/catalogue.php");
+  }
+
 
    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $connection = $db_connect->connect();
@@ -37,6 +45,7 @@
       }
 
       $db_connect->disconnect();  
+      header("Location: student/catalogue.php");
    }
 ?>
 

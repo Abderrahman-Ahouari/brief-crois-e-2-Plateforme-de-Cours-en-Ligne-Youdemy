@@ -1,6 +1,7 @@
 <?php
 include('../../classes/connection.php');
 include('../../classes/Course.php');
+include('../../classes/user.class.php');
 
 
 
@@ -9,6 +10,16 @@ $course_id = intval($_GET['course_id']);
 
 $db_connect = new Database_connection;
 $connection = $db_connect->connect();
+
+
+    // manage access
+    $user = new User($connection);
+$user->verify_user_status();
+if ($_SESSION['role'] !== 'student') {
+   header("Location: ../admin/courses.php");
+   exit;
+}
+
 
 $course = new Course($connection, $course_id);
 

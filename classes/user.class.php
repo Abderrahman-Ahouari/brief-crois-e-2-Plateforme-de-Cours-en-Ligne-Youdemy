@@ -132,7 +132,6 @@ class User {
 
         $_SESSION['id'] = $this->conn->lastInsertId();
         $_SESSION['role'] = $this->role;
-        $_SESSION['statu'] = $this->status;
 
         }catch(PDOException $error){
         die("an error while registering" . $error->getMessage());
@@ -157,7 +156,6 @@ class User {
                     if($user && password_verify($this->password, $user['password']) ){
                     $_SESSION['id'] = $user['user_id'];             
                     $_SESSION['role'] = $user['role'];
-                    $_SESSION['statu'] = $user['status'] ;
                 }else{
                     die("Invalid email or password.");
                 }
@@ -174,6 +172,31 @@ class User {
             header("location: ../pages/signup.php");
         }
 
-
+        function verify_user_status() {
+            session_start();
+            if (!isset($_SESSION['id'])) {
+                header("Location: ../signup.php");
+                exit;
+            }
+        
+            $user_id = $_SESSION['id'];
+        
+            try {
+                $sql = "SELECT status FROM users WHERE user_id = :user_id";
+                $query = $this->conn->prepare($sql);
+                $query->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                $query->execute();
+        
+                $result = $query->fetch(PDO::FETCH_ASSOC);
+        
+                if (!$result || $result['status'] !== 'active') {
+                    header("Location: ../rejected.php");
+                    exit;
+                }
+            } catch (PDOException $error) {
+                die("Error verifying user status: " . $error->getMessage());
+            }
+        }
+        
 }
 ?>
