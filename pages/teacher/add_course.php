@@ -7,6 +7,7 @@ include('../../classes/cours_video.php');
 include('../../classes/cours_document.php');
 include('../../classes/tags_courses.php');
 include('../../classes/user.class.php');
+session_start();
 
 
 $db_connect = new Database_connection;
@@ -16,7 +17,13 @@ $connection = $db_connect->connect();
 
     // manage access
     $user = new User($connection);
-$user->verify_user_status();
+   $status = $user->verify_user_status();
+   echo $status['status'];
+
+   if ($status['status'] === "inactive") {
+      header("Location: ../rejected.php");
+  }
+
 if ($_SESSION['role'] !== 'teacher') {
    header("Location: ../student/catalogue.php");
    exit;
@@ -41,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
    $title = $_POST['title'];
    $description = $_POST['description'];
    $categorie_id = $_POST['category'];
-   $teacher_id = 2;
+   $teacher_id = $_SESSION['id'];
    $duration = $_POST['video_duration'];
    $nbr_pages = $_POST['document_pages'];
    $cours_id;  
@@ -208,7 +215,7 @@ $db_connect->disconnect();
    </svg>
    </button>
 
-   <aside id="default-sidebar"  class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
+   <aside id="default-sidebar"  class="hidden fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-50 dark:bg-gray-800">
       <div class="h-full px-3 py-4 overflow-y-auto">
          <!-- Close Button -->
          <button id="close-sidebar" class="hidden absolute top-3 right-3 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">

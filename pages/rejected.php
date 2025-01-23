@@ -1,5 +1,23 @@
-<?php
-    if
+
+   <?php
+include('../classes/User.class.php'); 
+include('../classes/connection.php'); 
+session_start();
+
+
+$db_connect = new Database_connection;
+$connection = $db_connect->connect();
+
+
+$user = new User($connection); 
+$status = $user->verify_user_status();
+if ($status['status'] !== "inactive") {
+    header("Location: ../pages/teacher/add_course.php");
+}
+
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

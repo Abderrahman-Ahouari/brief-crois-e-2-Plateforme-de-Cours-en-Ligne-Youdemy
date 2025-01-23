@@ -2,8 +2,11 @@
 include('../../classes/connection.php');
 include('../../classes/Course.php');
 include('../../classes/user.class.php');
+session_start();
 
-$user_id = 2;
+
+
+$user_id = $_SESSION['id'];
 // $user_id = $_SESSION['user_id'];
 
 $db_connect = new Database_connection;
@@ -12,7 +15,12 @@ $connection = $db_connect->connect();
 
     // manage access
     $user = new User($connection);
-$user->verify_user_status();
+   $status = $user->verify_user_status();
+   echo $status['status'];
+
+   if ($status['status'] === "inactive") {
+      header("Location: ../rejected.php");
+  }
 if ($_SESSION['role'] !== 'student') {
    header("Location: ../admin/courses.php");
    exit;

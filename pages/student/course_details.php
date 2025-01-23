@@ -3,6 +3,7 @@ include('../../classes/connection.php');
 include('../../classes/Course.php');
 include('../../classes/user.class.php');
 
+session_start();
 
 
 
@@ -14,7 +15,13 @@ $connection = $db_connect->connect();
 
     // manage access
     $user = new User($connection);
-$user->verify_user_status();
+   $status = $user->verify_user_status();
+   echo $status['status'];
+
+   if ($status['status'] === "inactive") {
+      header("Location: ../rejected.php");
+  }
+
 if ($_SESSION['role'] !== 'student') {
    header("Location: ../admin/courses.php");
    exit;
@@ -23,7 +30,7 @@ if ($_SESSION['role'] !== 'student') {
 
 $course = new Course($connection, $course_id);
 
-$course_details = $course->read_course_details(); // Fetch course details
+$course_details = $course->read_course_details(); 
 
 if (!$course_details) {
     die("Course not found.");

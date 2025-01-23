@@ -5,6 +5,7 @@
     include('../../classes/cours_video.php');
     include('../../classes/cours_document.php');
     include('../../classes/user.class.php');
+    session_start();
 
 
     $db_connect = new Database_connection;
@@ -13,7 +14,13 @@
 
     // manage access
     $user = new User($connection);
-$user->verify_user_status();
+   $status = $user->verify_user_status();
+   echo $status['status'];
+
+   if ($status['status'] === "inactive") {
+      header("Location: ../rejected.php");
+  }
+
 if ($_SESSION['role'] !== 'teacher') {
    header("Location: ../student/catalogue.php");
    exit;
@@ -46,7 +53,7 @@ if ($_SESSION['role'] !== 'teacher') {
             $title = $_POST['title'];
             $description = $_POST['description'];
             $categorie_id = $_POST['category'];
-            $teacher_id = 2;
+            $teacher_id = $_SESSION['id'];
             $duration = $_POST['duration'];
             $nbr_pages = $_POST['nbr_pages']; 
             $cours_id = $_POST['course_id']; 

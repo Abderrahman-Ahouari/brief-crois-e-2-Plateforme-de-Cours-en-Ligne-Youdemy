@@ -98,7 +98,6 @@ class User {
     }
 
     public function signup(){
-        session_start(); 
        try{
 
             $upload_folder = "../Uploads/";
@@ -141,7 +140,6 @@ class User {
 
         public function login(){
             try{
-                session_start();
                 
                 $sql="SELECT user_id, password, role, status FROM users WHERE email=:email;";
         
@@ -173,7 +171,6 @@ class User {
         }
 
         function verify_user_status() {
-            session_start();
             if (!isset($_SESSION['id'])) {
                 header("Location: ../signup.php");
                 exit;
@@ -189,10 +186,7 @@ class User {
         
                 $result = $query->fetch(PDO::FETCH_ASSOC);
         
-                if (!$result || $result['status'] !== 'active') {
-                    header("Location: ../rejected.php");
-                    exit;
-                }
+                return $result;
             } catch (PDOException $error) {
                 die("Error verifying user status: " . $error->getMessage());
             }
